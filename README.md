@@ -15,9 +15,13 @@ The code used for [OGB](https://github.com/snap-stanford/ogb) is straightforward
 
 ## To reproduce the results:
 
-Setup your environment:
+Setup your environment: (enter "y" as prompted)
 
-    conda env create -f environment_gpu.yml
+    mamba env create -f environment_gpu.yml
+    conda activate benchmark_gnn
+    chmod +x environment_gpu.shy
+    
+    ./environment_gpu.sh
 
 #### OGB:
 - In order to run a model on a given dataset `$DATASET` with an output file `$FILENAME` run the following command:

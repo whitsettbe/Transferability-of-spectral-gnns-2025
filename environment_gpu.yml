@@ -40,8 +40,3 @@ dependencies:
   - scikit-image=0.15.0
   - requests==2.22.0
   - tqdm==4.43.0
-  - pip:
-      - tensorflow-gpu==2.1.0
-      - tensorflow-estimator==2.1.0
-      - tensorboard==2.1.1
-      - ogb==1.2.3
