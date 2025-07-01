@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
+from spec_layer import SpecLayer
 
 
 class MLPLayer(nn.Module):
@@ -82,6 +83,7 @@ class GNN(nn.Module):
         gnn_layer = {
             'Cheb_net': ChebLayer,
             'mlp': MLPLayer,
+            'Spec_filters': SpecLayer
         }.get(gnn_type, ChebLayer)
 
         self.layers = nn.ModuleList([

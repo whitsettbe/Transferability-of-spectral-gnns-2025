@@ -2,6 +2,7 @@ import argparse
 import os
 import dgl
 import numpy as np
+from copy import deepcopy
 import torch
 import torch.optim as optim
 from gnn_dgl import GNN
@@ -9,6 +10,7 @@ from ogb.graphproppred import DglGraphPropPredDataset, Evaluator, collate_dgl
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
+from spec_layer import SpecLayer
 
 cls_criterion = torch.nn.BCEWithLogitsLoss()
 reg_criterion = torch.nn.MSELoss()
@@ -87,9 +89,18 @@ def main():
                         help='dataset name (default: ogbg-molhiv)')
     parser.add_argument('--filename', type=str, default="",
                         help='filename to output result (default: )')
+    parser.add_argument('--num_eigs', type=int, default=15,
+                        help='number of eigenvectors to compute (default: 15)') # BW
+    parser.add_argument('--hidden_dim', type=int, default=75,
+                        help='size of the spectral filter hidden dimension (default: 75)') # BW
     args = parser.parse_args()
 
-    device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
+    # BW: print all arguments
+    print(vars(args))
+
+    #BW: cuda is not available for this machine and this version of cuda
+    #device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
+    device = torch.device("cpu")  # Force CPU right now due to compatibility issues
 
     ### automatic dataloading and splitting
     dataset = DglGraphPropPredDataset(name=args.dataset)
@@ -104,13 +115,17 @@ def main():
     evaluator = Evaluator(args.dataset)
 
     train_loader = DataLoader(dataset[split_idx["train"]], batch_size=args.batch_size, shuffle=True,
-                              num_workers=args.num_workers, collate_fn=collate_dgl, pin_memory = True)
+                              num_workers=args.num_workers, collate_fn=collate_dgl, pin_memory = True)#BW: True)
     valid_loader = DataLoader(dataset[split_idx["valid"]], batch_size=args.batch_size, shuffle=False,
                               num_workers=args.num_workers, collate_fn=collate_dgl, pin_memory = True)
     test_loader = DataLoader(dataset[split_idx["test"]], batch_size=args.batch_size, shuffle=False,
                              num_workers=args.num_workers, collate_fn=collate_dgl, pin_memory = True)
 
-    if args.gnn in ['gated-gcn', 'mlp', 'Cheb_net']:
+    if args.gnn == 'Spec_filters':
+        SpecLayer.num_eigs = args.num_eigs  # Set the number of eigenvectors for SpecLayer
+        SpecLayer.hidden_dim = args.hidden_dim
+    
+    if args.gnn in ['gated-gcn', 'mlp', 'Cheb_net', 'Spec_filters']: # BW: Spec_filters
         model = GNN(gnn_type=args.gnn, num_tasks=dataset.num_tasks, num_layer=args.num_layer,
                     emb_dim=args.emb_dim, dropout=args.dropout, batch_norm=True,
                     residual=True, graph_pooling="mean")
@@ -129,6 +144,8 @@ def main():
     valid_curve = []
     test_curve = []
     train_curve = []
+    best_valid = None # BW
+    best_model_state = None # BW
 
     for epoch in range(1, args.epochs + 1):
         print("=====Epoch {}".format(epoch))
@@ -150,6 +167,15 @@ def main():
         writer.add_scalar('Test', test_perf[dataset.eval_metric], epoch)
         writer.add_scalar('Train', train_perf[dataset.eval_metric], epoch)
 
+        if 'classification' in dataset.task_type: # BW
+            if best_valid is None or valid_curve[-1] > best_valid:
+                best_valid = valid_curve[-1]
+                best_model_state = deepcopy(model.state_dict())
+        else:
+            if best_valid is None or valid_curve[-1] < best_valid:
+                best_valid = valid_curve[-1]
+                best_model_state = deepcopy(model.state_dict())
+
     if 'classification' in dataset.task_type:
         best_val_epoch = np.argmax(np.array(valid_curve))
         best_train = max(train_curve)
@@ -166,7 +192,8 @@ def main():
             'Val': valid_curve[best_val_epoch],
             'Test': test_curve[best_val_epoch],
             'Train': train_curve[best_val_epoch],
-            'BestTrain': best_train
+            'BestTrain': best_train,
+            'Model': best_model_state # BW
         }, args.filename)
 
     writer.add_scalar('Best Val', valid_curve[best_val_epoch], best_val_epoch)
