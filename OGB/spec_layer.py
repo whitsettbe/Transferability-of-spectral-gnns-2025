@@ -9,6 +9,8 @@ class SpecLayer(nn.Module):
     evec_dict = dict()
     num_eigs = None
     hidden_dim = None
+    group_by = None # from ['eigen', 'features', 'none']
+    biases = True
     
     @staticmethod
     def _graph_hash(g):
@@ -57,14 +59,41 @@ class SpecLayer(nn.Module):
         self.activation = F.relu
         self.dropout = nn.Dropout(dropout)
 
-        # linear layer mixing the spectral features
-        self.weights1 = nn.Parameter(torch.randn(
-            (self.num_eigs, self.in_channels, self.hidden_dim)))
-        self.biases1 = nn.Parameter(torch.zeros(self.num_eigs, self.hidden_dim))
-        self.hidden_activation = F.relu
-        self.weights2 = nn.Parameter(torch.randn(
-            (self.num_eigs, self.hidden_dim, self.out_channels)))
-        self.biases2 = nn.Parameter(torch.zeros(self.num_eigs, self.out_channels))
+        # choose whether biases can be trained away from zero
+        biasBuilder = nn.Parameter if self.biases else (lambda x: x)
+
+        assert(self.group_by in ['eigen', 'features', 'none'])
+        if self.group_by == 'eigen':
+            # linear layers mixing the features
+            self.weights1 = nn.Parameter(torch.randn(
+                (self.num_eigs, self.in_channels, self.hidden_dim)))
+            self.biases1 = biasBuilder(torch.zeros(self.num_eigs, self.hidden_dim))
+            self.hidden_activation = F.relu
+            self.weights2 = nn.Parameter(torch.randn(
+                (self.num_eigs, self.hidden_dim, self.out_channels)))
+            self.biases2 = biasBuilder(torch.zeros(self.num_eigs, self.out_channels))
+
+        elif self.group_by == 'features':
+            assert(self.in_channels == self.out_channels)
+            # linear layers mixing the eigen-information
+            self.weights1 = nn.Parameter(torch.randn(
+                (self.in_channels, self.num_eigs, self.hidden_dim)))
+            self.biases1 = biasBuilder(torch.zeros(self.in_channels, self.hidden_dim))
+            self.hidden_activation = F.relu
+            self.weights2 = nn.Parameter(torch.randn(
+                (self.in_channels, self.hidden_dim, self.num_eigs)))
+            self.biases2 = biasBuilder(torch.zeros(self.in_channels, self.num_eigs))
+
+        elif self.group_by == 'none':
+            self.weights1 = nn.Parameter(torch.randn(
+                (self.num_eigs, self.in_channels, self.hidden_dim, self.hidden_dim)))
+            self.biases1 = biasBuilder(torch.zeros(self.hidden_dim, self.hidden_dim))
+            self.hidden_activation = F.relu
+            self.weights2 = nn.Parameter(torch.randn(
+                (self.hidden_dim, self.hidden_dim, self.num_eigs, self.out_channels)))
+            self.biases2 = biasBuilder(torch.zeros(self.num_eigs, self.out_channels))
+
+
 
     # def forward(self, g, feature, snorm_n, lambda_max=None):
     def forward(self, g, feature, e):
@@ -81,10 +110,22 @@ class SpecLayer(nn.Module):
         for graph, feat in zip(graphs, features):
             eigen = self._get_eigenvectors(graph)
 
-            spec_in = torch.einsum('ni,ne->ei', feat, eigen)
-            spec_hidden = torch.einsum('eik,ei->ek', self.weights1, spec_in) + self.biases1
-            spec_hidden = self.hidden_activation(spec_hidden)
-            spec_out = torch.einsum('eko,ek->eo', self.weights2, spec_hidden) + self.biases2
+            if self.group_by == 'eigen':
+                spec_in = torch.einsum('ni,ne->ei', feat, eigen)
+                spec_hidden = torch.einsum('eik,ei->ek', self.weights1, spec_in) + self.biases1
+                spec_hidden = self.hidden_activation(spec_hidden)
+                spec_out = torch.einsum('eko,ek->eo', self.weights2, spec_hidden) + self.biases2
+            elif self.group_by == 'features':
+                spec_in = torch.einsum('ni,ne->ie', feat, eigen)
+                spec_hidden = torch.einsum('iek,ie->ik', self.weights1, spec_in) + self.biases1
+                spec_hidden = self.hidden_activation(spec_hidden)
+                spec_out = torch.einsum('ike,ik->ie', self.weights2, spec_hidden) + self.biases2
+                spec_out = spec_out.T
+            elif self.group_by == 'none':
+                spec_in = torch.einsum('ni,ne->ei', feat, eigen)
+                spec_hidden = torch.einsum('eijk,ei->jk', self.weights1, spec_in) + self.biases1
+                spec_hidden = self.hidden_activation(spec_hidden)
+                spec_out = torch.einsum('jkeo,jk->eo', self.weights2, spec_hidden) + self.biases2
 
             h_list.append(torch.einsum('eo,ne->no', spec_out, eigen))
 

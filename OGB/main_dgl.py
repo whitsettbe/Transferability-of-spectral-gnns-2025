@@ -93,10 +93,28 @@ def main():
                         help='number of eigenvectors to compute (default: 15)') # BW
     parser.add_argument('--hidden_dim', type=int, default=75,
                         help='size of the spectral filter hidden dimension (default: 75)') # BW
+    parser.add_argument('--filter_grouping', type=str, default='eigen',
+                        help='filters parallel-wise process "eigen" (default), "features", or "none" (fully-connected mode)') # BW
+    parser.add_argument('--with_residual', dest='residual', action='store_true') # BW
+    parser.add_argument('--no_residual', dest='residual', action='store_false') # BW
+    parser.set_defaults(residual=True) # BW
+    parser.add_argument('--with_biases', dest='biases', action='store_true') # BW
+    parser.add_argument('--no_biases', dest='biases', action='store_false') # BW
+    parser.set_defaults(biases=True) # BW
     args = parser.parse_args()
+    parser.add_argument('--l1_reg', type=float, default=0,
+                        help='weight of L1 regularization in the loss (default 0)') # BW
+    parser.add_argument('--l2_reg', type=float, default=0,
+                        help='weight of L2 regularization in the loss (default 0)') # BW
+    
 
     # BW: print all arguments
     print(vars(args))
+
+    # BW: establish seed for reproducibility
+    seed = 42
+    np.random.seed(seed)
+    torch.manual_seed(seed)
 
     #BW: cuda is not available for this machine and this version of cuda
     #device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
@@ -115,7 +133,7 @@ def main():
     evaluator = Evaluator(args.dataset)
 
     train_loader = DataLoader(dataset[split_idx["train"]], batch_size=args.batch_size, shuffle=True,
-                              num_workers=args.num_workers, collate_fn=collate_dgl, pin_memory = True)#BW: True)
+                              num_workers=args.num_workers, collate_fn=collate_dgl, pin_memory = False)#BW: True)
     valid_loader = DataLoader(dataset[split_idx["valid"]], batch_size=args.batch_size, shuffle=False,
                               num_workers=args.num_workers, collate_fn=collate_dgl, pin_memory = True)
     test_loader = DataLoader(dataset[split_idx["test"]], batch_size=args.batch_size, shuffle=False,
@@ -124,11 +142,13 @@ def main():
     if args.gnn == 'Spec_filters':
         SpecLayer.num_eigs = args.num_eigs  # Set the number of eigenvectors for SpecLayer
         SpecLayer.hidden_dim = args.hidden_dim
+        SpecLayer.group_by = args.filter_grouping
+        SpecLayer.biases = args.biases
     
     if args.gnn in ['gated-gcn', 'mlp', 'Cheb_net', 'Spec_filters']: # BW: Spec_filters
         model = GNN(gnn_type=args.gnn, num_tasks=dataset.num_tasks, num_layer=args.num_layer,
                     emb_dim=args.emb_dim, dropout=args.dropout, batch_norm=True,
-                    residual=True, graph_pooling="mean")
+                    residual=args.residual, graph_pooling="mean")
         model.to(device)
     else:
         raise ValueError('Invalid GNN type')
