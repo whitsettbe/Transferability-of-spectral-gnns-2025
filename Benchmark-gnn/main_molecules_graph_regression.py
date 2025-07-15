@@ -28,6 +28,7 @@ class DotDict(dict):
 """
 from nets.molecules_graph_regression.ChebNet import ChebNet  # import the ChebNet GNN
 from data.data import LoadData  # import dataset
+from layers.Spec_layer import SpecLayer # BW
 
 """
     GPU Setup
@@ -53,7 +54,7 @@ def gpu_setup(use_gpu, gpu_id):
 
 
 def view_model_param(MODEL_NAME, net_params):
-    model = ChebNet(net_params)
+    model = ChebNet(net_params, MODEL_NAME) # BW
     total_param = 0
     print("MODEL DETAILS:\n")
     # print(model)
@@ -99,7 +100,14 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     print("Validation Graphs: ", len(valset))
     print("Test Graphs: ", len(testset))
 
-    model = ChebNet(net_params)
+    # BW: Save global parameters required by SpecLayer
+    SpecLayer.num_eigs = net_params['num_eigs']  # Set the number of eigenvectors for SpecLayer
+    SpecLayer.hidden_dim = net_params['hidden_dim']
+    SpecLayer.group_by = net_params['filter_grouping']
+    SpecLayer.biases = net_params['biases']
+
+    # BW
+    model = ChebNet(net_params, model=MODEL_NAME)
     model = model.to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=params['init_lr'], weight_decay=params['weight_decay'])
@@ -254,6 +262,17 @@ def main():
     parser.add_argument('--max_time', help="Please give a value for max_time")
     parser.add_argument('--pos_enc_dim', help="Please give a value for pos_enc_dim")
     parser.add_argument('--pos_enc', help="Please give a value for pos_enc")
+    parser.add_argument('--num_eigs', type=int, default=15,
+                        help='number of eigenvectors to compute (default: 15)') # BW
+    parser.add_argument('--filter_grouping', type=str, default='features',
+                        help='filters parallel-wise process "features" (default), "eigen", or "none" (fully-connected mode)') # BW
+    parser.add_argument('--with_biases', dest='biases', action='store_true') # BW
+    parser.add_argument('--no_biases', dest='biases', action='store_false') # BW
+    parser.set_defaults(biases=True) # BW
+    parser.add_argument('--l1_reg', type=float, default=0,
+                        help='weight of L1 regularization in the loss (default 0)') # BW
+    parser.add_argument('--l2_reg', type=float, default=0,
+                        help='weight of L2 regularization in the loss (default 0)') # BW
     args = parser.parse_args()
     with open(args.config) as f:
         config = json.load(f)
@@ -299,6 +318,7 @@ def main():
         params['print_epoch_interval'] = int(args.print_epoch_interval)
     if args.max_time is not None:
         params['max_time'] = float(args.max_time)
+
     # network parameters
     net_params = config['net_params']
     net_params['device'] = device
@@ -339,6 +359,18 @@ def main():
     if args.self_loop is not None:
         net_params['self_loop'] = True if args.self_loop == 'True' else False
 
+    # BW
+    if args.num_eigs is not None:
+        net_params['num_eigs'] = args.num_eigs
+    if args.filter_grouping is not None:
+        net_params['filter_grouping'] = args.filter_grouping
+    if args.biases is not None:
+        net_params['biases'] = args.biases
+    if args.l1_reg is not None:
+        net_params['l1_reg'] = args.l1_reg
+    if args.l2_reg is not None:
+        net_params['l2_reg'] = args.l2_reg
+
     # ZINC
     net_params['num_atom_type'] = dataset.num_atom_type
     net_params['num_bond_type'] = dataset.num_bond_type
@@ -359,7 +391,7 @@ def main():
     if not os.path.exists(out_dir + 'configs'):
         os.makedirs(out_dir + 'configs')
 
-    net_params['total_param'] = view_model_param(MODEL_NAME, net_params)
+    net_params['total_param'] = -1 #view_model_param(MODEL_NAME, net_params) # too complicated to initialize just for this calculation
     train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs)
 
 

@@ -16,7 +16,7 @@ cls_criterion = torch.nn.BCEWithLogitsLoss()
 reg_criterion = torch.nn.MSELoss()
 
 
-def train(model, device, loader, optimizer, task_type):
+def train(model, device, loader, optimizer, task_type, l1_reg_coeff, l2_reg_coeff):
     model.train()
 
     for step, (batch_graphs, batch_labels) in enumerate(tqdm(loader, desc="Iteration")):
@@ -34,6 +34,16 @@ def train(model, device, loader, optimizer, task_type):
             loss = cls_criterion(pred.to(torch.float32)[is_labeled], batch_labels.to(torch.float32)[is_labeled])
         else:
             loss = reg_criterion(pred.to(torch.float32)[is_labeled], batch_labels.to(torch.float32)[is_labeled])
+
+        # include regularization terms (weight is loss per datum per total f(parameter))
+        if l1_reg_coeff > 0:
+            l1_mean = sum(p.abs().sum() for p in model.parameters())
+            l1_mean /= sum(torch.tensor(p.shape).prod() for p in model.parameters())
+            loss += l1_reg_coeff * l1_mean * pred.size(0)
+        if l2_reg_coeff > 0:
+            l2_mean = sum(p.pow(2).sum() for p in model.parameters())
+            l2_mean /= sum(torch.tensor(p.shape).prod() for p in model.parameters())
+            loss += l2_reg_coeff * l2_mean * pred.size(0)
 
         loss.backward()
         optimizer.step()
@@ -101,12 +111,13 @@ def main():
     parser.add_argument('--with_biases', dest='biases', action='store_true') # BW
     parser.add_argument('--no_biases', dest='biases', action='store_false') # BW
     parser.set_defaults(biases=True) # BW
-    args = parser.parse_args()
     parser.add_argument('--l1_reg', type=float, default=0,
                         help='weight of L1 regularization in the loss (default 0)') # BW
     parser.add_argument('--l2_reg', type=float, default=0,
                         help='weight of L2 regularization in the loss (default 0)') # BW
+
     
+    args = parser.parse_args()
 
     # BW: print all arguments
     print(vars(args))
@@ -170,7 +181,7 @@ def main():
     for epoch in range(1, args.epochs + 1):
         print("=====Epoch {}".format(epoch))
         print('Training...')
-        train(model, device, train_loader, optimizer, dataset.task_type)
+        train(model, device, train_loader, optimizer, dataset.task_type, args.l1_reg, args.l2_reg)
 
         print('Evaluating...')
         train_perf = eval(model, device, train_loader, evaluator)

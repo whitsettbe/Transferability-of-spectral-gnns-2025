@@ -7,10 +7,10 @@ import torch.nn.functional as F
 """
 from layers.Cheb_layer import ChebLayer
 from layers.mlp_readout_layer import MLPReadout
-
+from layers.Spec_layer import SpecLayer
 
 class ChebNet(nn.Module):
-    def __init__(self, net_params):
+    def __init__(self, net_params, model='ChebNet'):
         super().__init__()
         num_atom_type = net_params['num_atom_type']
         num_bond_type = net_params['num_bond_type']
@@ -29,13 +29,15 @@ class ChebNet(nn.Module):
 
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
-        self.layers = nn.ModuleList([ChebLayer(hidden_dim, hidden_dim, self.k, F.relu, dropout,
+        layer = ChebLayer if model == 'ChebNet' else SpecLayer # BW
+        self.layers = nn.ModuleList([layer(hidden_dim, hidden_dim, self.k, F.relu, dropout,
                                                self.graph_norm, self.batch_norm, self.residual) for _ in
                                      range(n_layers - 1)])
         self.layers.append(
-            ChebLayer(hidden_dim, out_dim, self.k, F.relu, dropout, self.graph_norm, self.batch_norm, self.residual))
+            layer(hidden_dim, out_dim, self.k, F.relu, dropout, self.graph_norm, self.batch_norm, self.residual))
         self.MLP_layer = MLPReadout(out_dim, 1)
 
+    # BW
     def forward(self, g, h, e):
         h = self.embedding_h(h)
         h = self.in_feat_dropout(h)
