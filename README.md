@@ -42,7 +42,7 @@ Setup your environment: (enter "y" as prompted)
 
 ## Spectral Application (SUMRY)
 
-        python -u -u main_molecules_graph_regression.py --dataset ZINC --seed 41 --config 'configs/molecules_graph_regression_Spec_ZINC.json'
+        python -u main_molecules_graph_regression.py --dataset ZINC --seed 41 --config 'configs/molecules_graph_regression_Spec_ZINC.json'
     
 ## Repository structure
     .
