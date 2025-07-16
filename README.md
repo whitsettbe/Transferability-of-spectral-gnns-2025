@@ -19,7 +19,7 @@ Setup your environment: (enter "y" as prompted)
 
     mamba env create -f environment_gpu.yml
     conda activate benchmark_gnn
-    chmod +x environment_gpu.shy
+    chmod +x environment_gpu.sh
     
     ./environment_gpu.sh
 
@@ -39,6 +39,10 @@ Setup your environment: (enter "y" as prompted)
 - Then you can run the experiments by using the command:
 
         bash benchmark_gnn_script.sh
+
+## Spectral Application (SUMRY)
+
+        python -u main_molecules_graph_regression.py --dataset ZINC --seed 41 --config 'configs/molecules_graph_regression_Spec_ZINC.json'
     
 ## Repository structure
     .
