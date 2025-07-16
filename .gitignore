@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Datasets really shouldn't be saved up there!
+# (nor should output logs)
+Benchmark-gnn/data/molecules
+Benchmark-gnn/data/SBMs
+Benchmark-gnn/out

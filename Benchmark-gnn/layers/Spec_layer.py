@@ -40,7 +40,7 @@ class SpecLayer(nn.Module):
             if torch_eigenvectors.size(1) < SpecLayer.num_eigs:
                 padding = torch.zeros((torch_eigenvectors.size(0), SpecLayer.num_eigs - torch_eigenvectors.size(1)), device=g.device)
                 torch_eigenvectors = torch.cat((torch_eigenvectors, padding), dim=1)
-            SpecLayer.evec_dict[graph_key] = torch_eigenvectors
+            SpecLayer.evec_dict[graph_key] = torch_eigenvectors.detach()
         return SpecLayer.evec_dict[graph_key]
     
     """
@@ -224,5 +224,5 @@ class SpecLayer(nn.Module):
     """
 
     def __repr__(self):
-        return '{}(in_channels={}, out_channels={}, k={})'.format(
-            self.__class__.__name__, self.in_channels, self.out_channels, self._k)
+        return '{}(in_channels={}, out_channels={})'.format(
+            self.__class__.__name__, self.in_channels, self.out_channels)

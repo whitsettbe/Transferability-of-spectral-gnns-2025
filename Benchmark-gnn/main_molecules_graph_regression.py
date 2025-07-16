@@ -29,6 +29,7 @@ class DotDict(dict):
 from nets.molecules_graph_regression.ChebNet import ChebNet  # import the ChebNet GNN
 from data.data import LoadData  # import dataset
 from layers.Spec_layer import SpecLayer # BW
+from layers.Eigval_layer import EigvalLayer # BW
 
 """
     GPU Setup
@@ -82,9 +83,11 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     device = net_params['device']
 
     # Write the network and optimization hyper-parameters in folder config/
+    modelInfo = """Dataset: {},\nModel: {}\n\nparams={}\n\nnet_params={}\n\n\nTotal Parameters: {}\n\n""".format(
+            DATASET_NAME, MODEL_NAME, params, net_params, net_params['total_param'])
     with open(write_config_file + '.txt', 'w') as f:
-        f.write("""Dataset: {},\nModel: {}\n\nparams={}\n\nnet_params={}\n\n\nTotal Parameters: {}\n\n""".format(
-            DATASET_NAME, MODEL_NAME, params, net_params, net_params['total_param']))
+        f.write(modelInfo)
+    print(modelInfo)
 
     log_dir = os.path.join(root_log_dir, "RUN_" + str(0))
     writer = SummaryWriter(log_dir=log_dir)
@@ -101,10 +104,16 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     print("Test Graphs: ", len(testset))
 
     # BW: Save global parameters required by SpecLayer
-    SpecLayer.num_eigs = net_params['num_eigs']  # Set the number of eigenvectors for SpecLayer
-    SpecLayer.hidden_dim = net_params['hidden_dim']
-    SpecLayer.group_by = net_params['filter_grouping']
-    SpecLayer.biases = net_params['biases']
+    SpecLayer.num_eigs = net_params.get('num_eigs', 15)  # Set the number of eigenvectors for SpecLayer
+    SpecLayer.hidden_dim = net_params.get('hidden_dim', 150)
+    SpecLayer.group_by = net_params.get('filter_grouping', "features")
+    SpecLayer.biases = net_params.get('biases',True)
+
+    # BW: Save global parameters required by EigvalLayer
+    EigvalLayer.num_eigs = net_params.get('num_eigs',15)
+    EigvalLayer.subtype = net_params.get('subtype', 'dense')
+    EigvalLayer.normalized_laplacian = net_params.get('normalized_laplacian', False)
+    EigvalLayer.eigval_norm = net_params.get('eigval_norm', '')
 
     # BW
     model = ChebNet(net_params, model=MODEL_NAME)
@@ -264,15 +273,21 @@ def main():
     parser.add_argument('--pos_enc', help="Please give a value for pos_enc")
     parser.add_argument('--num_eigs', type=int, default=15,
                         help='number of eigenvectors to compute (default: 15)') # BW
-    parser.add_argument('--filter_grouping', type=str, default='features',
+    parser.add_argument('--filter_grouping', type=str,
                         help='filters parallel-wise process "features" (default), "eigen", or "none" (fully-connected mode)') # BW
     parser.add_argument('--with_biases', dest='biases', action='store_true') # BW
     parser.add_argument('--no_biases', dest='biases', action='store_false') # BW
     parser.set_defaults(biases=True) # BW
-    parser.add_argument('--l1_reg', type=float, default=0,
-                        help='weight of L1 regularization in the loss (default 0)') # BW
-    parser.add_argument('--l2_reg', type=float, default=0,
-                        help='weight of L2 regularization in the loss (default 0)') # BW
+    parser.add_argument('--l1_reg', type=float,
+                        help='weight of L1 regularization in the loss') # BW
+    parser.add_argument('--l2_reg', type=float,
+                        help='weight of L2 regularization in the loss') # BW
+    parser.add_argument('--subtype', type=str,
+                        help='subtype for the eigenvalue-based filter') # BW
+    parser.add_argument('--normalized_laplacian', type=bool,
+                        help='whether to use normalized laplacian') # BW
+    parser.add_argument('--eigval_norm', type=str,
+                        help='normalization of the eigenvalues') # BW
     args = parser.parse_args()
     with open(args.config) as f:
         config = json.load(f)
@@ -370,6 +385,12 @@ def main():
         net_params['l1_reg'] = args.l1_reg
     if args.l2_reg is not None:
         net_params['l2_reg'] = args.l2_reg
+    if args.subtype is not None:
+        net_params['subtype'] = args.subtype
+    if args.normalized_laplacian is not None:
+        net_params['normalized_laplacian'] = args.normalized_laplacian
+    if args.eigval_norm is not None:
+        net_params['eigval_norm'] = args.eigval_norm
 
     # ZINC
     net_params['num_atom_type'] = dataset.num_atom_type

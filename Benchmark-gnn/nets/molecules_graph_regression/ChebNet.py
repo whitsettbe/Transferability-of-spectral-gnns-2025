@@ -8,6 +8,7 @@ import torch.nn.functional as F
 from layers.Cheb_layer import ChebLayer
 from layers.mlp_readout_layer import MLPReadout
 from layers.Spec_layer import SpecLayer
+from layers.Eigval_layer import EigvalLayer
 
 class ChebNet(nn.Module):
     def __init__(self, net_params, model='ChebNet'):
@@ -29,7 +30,14 @@ class ChebNet(nn.Module):
 
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
-        layer = ChebLayer if model == 'ChebNet' else SpecLayer # BW
+        # BW
+        if model == 'ChebNet':
+            layer = ChebLayer
+        elif model == 'SpecFilters':
+            layer = SpecLayer
+        elif model == 'EigvalFilters':
+            layer = EigvalLayer
+
         self.layers = nn.ModuleList([layer(hidden_dim, hidden_dim, self.k, F.relu, dropout,
                                                self.graph_norm, self.batch_norm, self.residual) for _ in
                                      range(n_layers - 1)])
