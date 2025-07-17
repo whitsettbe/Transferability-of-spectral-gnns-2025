@@ -30,9 +30,9 @@
     "graph_norm": true,
     "batch_norm": true,
     "self_loop": false,
-    "subtype": "cheb_vec",
+    "subtype": "cheb02_vec",
     "normalized_laplacian": true,
-    "eigval_norm": "scale(-1,1)_all",
+    "eigval_norm": "",
     "num_eigs": 40
   }
 }

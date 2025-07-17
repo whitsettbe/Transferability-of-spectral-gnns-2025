@@ -271,8 +271,8 @@ def main():
     parser.add_argument('--max_time', help="Please give a value for max_time")
     parser.add_argument('--pos_enc_dim', help="Please give a value for pos_enc_dim")
     parser.add_argument('--pos_enc', help="Please give a value for pos_enc")
-    parser.add_argument('--num_eigs', type=int, default=15,
-                        help='number of eigenvectors to compute (default: 15)') # BW
+    parser.add_argument('--num_eigs', type=int,
+                        help='number of eigenvectors to compute') # BW
     parser.add_argument('--filter_grouping', type=str,
                         help='filters parallel-wise process "features" (default), "eigen", or "none" (fully-connected mode)') # BW
     parser.add_argument('--with_biases', dest='biases', action='store_true') # BW

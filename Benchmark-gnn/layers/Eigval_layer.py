@@ -11,7 +11,7 @@ import torch.nn.functional as F
 class EigvalLayer(nn.Module):
     eig_dict = dict() # mapping (num_nodes, sorted_edge_tuples) to (eigenvalues (e), eigenvectors (nxe))
     num_eigs = None
-    subtype = "dense" # one of ["dense", "poly", "parallel"]
+    subtype = "dense" # one of ["dense", "poly", "parallel", ETC. ETC.]
     eigval_norm = "" # can be "" or "scale(-1,1)_all" (scale to -1,1 before subsetting)
 
     @staticmethod
@@ -131,6 +131,10 @@ class EigvalLayer(nn.Module):
             self.weights.append(nn.Parameter(torch.randn(
                 (self._k, self.in_channels, self.out_channels)
             )))
+        elif self.subtype == 'cheb02_vec':
+            self.weights.append(nn.Parameter(torch.randn(
+                (self._k, self.in_channels, self.out_channels)
+            )))
 
 
         # Pick an activation for the spectral construction
@@ -215,6 +219,19 @@ class EigvalLayer(nn.Module):
 
                 h = torch.einsum('ne,ni->ei', evecs, feat)
                 h = torch.einsum('eio,ei->eo', s, h) # this step is big?
+                h = torch.einsum('ne,eo->no', evecs, h)
+                h_list.append(h)
+
+            elif self.subtype == 'cheb02_vec': # chebyshev recurrence shifted for 0 to 1
+                s = [torch.ones(evals.shape), evals - 1]
+                for n in range(2, self._k):
+                    s.append(2 * (evals - 1) * s[-1] - s[-2])
+                s = torch.stack(s, dim=1)
+                #s = torch.einsum('kio,ek->eio', self.weights[0], s)
+
+                h = torch.einsum('ne,ni->ei', evecs, feat)
+                h = torch.einsum('ek,ei->eki', s, h) # broken up (should be faster now)
+                h = torch.einsum('kio,eki->eo', self.weights[0], h) # ^
                 h = torch.einsum('ne,eo->no', evecs, h)
                 h_list.append(h)
             
