@@ -122,6 +122,16 @@ class EigvalLayer(nn.Module):
             self.weights.append(nn.Parameter(torch.randn(
                 (self._k * self.num_eigs, self.num_eigs)
             )))
+        elif self.subtype == 'poly_vec':
+            # each output feature is a linear combination of input features which have passed through a polynomial of lambda
+            self.weights.append(nn.Parameter(torch.randn(
+                (self._k, self.in_channels, self.out_channels)
+            )))
+        elif self.subtype == 'cheb_vec':
+            self.weights.append(nn.Parameter(torch.randn(
+                (self._k, self.in_channels, self.out_channels)
+            )))
+
 
         # Pick an activation for the spectral construction
         self.spectral_activation = F.relu
@@ -152,6 +162,11 @@ class EigvalLayer(nn.Module):
                     s = torch.einsum('ijkl,ij->kl',self.weights[n],s)+self.biases[n]
                     if n < self._k - 1: # don't do this at the end
                         s = self.spectral_activation(s)
+
+                # evecs shaped (num_nodes,num_eigs)
+                # feat shaped (num_nodes,num_features)
+                # e,i are size num_eigs; n,z are size num_nodes
+                h_list.append(torch.einsum('zi,ei,ne,nf->zf', evecs, s, evecs, feat))
                         
             elif self.subtype == 'parallel':
                 # 1 to expand, k-2 for nonlinearity, 1 to summarize
@@ -161,6 +176,11 @@ class EigvalLayer(nn.Module):
                 s = torch.einsum('xyj,xyj->xy',self.weights[-1],s)+self.biases[-1]
                 # NOTE: x is the dimension varying in which eigenvalue is used, which should be 
                 #  the *summed* dimension when used in multiplication (as it is here)
+
+                # evecs shaped (num_nodes,num_eigs)
+                # feat shaped (num_nodes,num_features)
+                # e,i are size num_eigs; n,z are size num_nodes
+                h_list.append(torch.einsum('zi,ei,ne,nf->zf', evecs, s, evecs, feat))
             
             elif self.subtype == 'poly':
                 s = [torch.eye(evals.size(0)), torch.diag(evals)]
@@ -169,10 +189,35 @@ class EigvalLayer(nn.Module):
                 s = torch.cat(s, dim=0)
                 s = torch.einsum('pe,pi->ei',self.weights[0],s)
 
-            # evecs shaped (num_nodes,num_eigs)
-            # feat shaped (num_nodes,num_features)
-            # e,i are size num_eigs; n,z are size num_nodes
-            h_list.append(torch.einsum('zi,ei,ne,nf->zf', evecs, s, evecs, feat))
+                # evecs shaped (num_nodes,num_eigs)
+                # feat shaped (num_nodes,num_features)
+                # e,i are size num_eigs; n,z are size num_nodes
+                h_list.append(torch.einsum('zi,ei,ne,nf->zf', evecs, s, evecs, feat))
+
+            elif self.subtype == 'poly_vec':
+                s = [torch.ones(evals.shape), evals]
+                for n in range(2, self._k):
+                    s.append(s[1] * s[-1])
+                s = torch.stack(s, dim=1)
+                s = torch.einsum('kio,ek->eio', self.weights[0], s)
+
+                h = torch.einsum('ne,ni->ei', evecs, feat)
+                h = torch.einsum('eio,ei->eo', s, h) # this step is big?
+                h = torch.einsum('ne,eo->no', evecs, h)
+                h_list.append(h)
+            
+            elif self.subtype == 'cheb_vec':
+                s = [torch.ones(evals.shape), evals]
+                for n in range(2, self._k):
+                    s.append(2 * s[1] * s[-1] - s[-2])
+                s = torch.stack(s, dim=1)
+                s = torch.einsum('kio,ek->eio', self.weights[0], s)
+
+                h = torch.einsum('ne,ni->ei', evecs, feat)
+                h = torch.einsum('eio,ei->eo', s, h) # this step is big?
+                h = torch.einsum('ne,eo->no', evecs, h)
+                h_list.append(h)
+            
 
         # Recompile the filtered signals into a batch
         h = torch.cat(h_list, dim=0)
