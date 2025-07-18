@@ -13,6 +13,9 @@ class EigvalLayer(nn.Module):
     num_eigs = None
     subtype = "dense" # one of ["dense", "poly", "parallel", ETC. ETC.]
     eigval_norm = "" # can be "" or "scale(-1,1)_all" (scale to -1,1 before subsetting)
+    bias_mode = "" # can be "", spatial, or spectral
+    eigval_hidden_dim = None
+    eigval_num_hidden_layer = None
 
     @staticmethod
     def _graph_hash(g):
@@ -87,8 +90,8 @@ class EigvalLayer(nn.Module):
         self._k = k
 
         # Build layers for constructing the spectral-domain filter
-        self.weights = []
-        self.biases = []
+        self.weights = nn.ParameterList()
+        self.biases = nn.ParameterList()
         if self.subtype == 'dense':
             for n in range(self._k):
                 self.weights.append(nn.Parameter(torch.randn(
@@ -131,9 +134,39 @@ class EigvalLayer(nn.Module):
             self.weights.append(nn.Parameter(torch.randn(
                 (self._k, self.in_channels, self.out_channels)
             )))
+
         elif self.subtype == 'cheb02_vec':
             self.weights.append(nn.Parameter(torch.randn(
                 (self._k, self.in_channels, self.out_channels)
+            )))
+            self.biases.append(nn.Parameter(torch.zeros(
+                (self.out_channels,)
+            )))
+
+        elif self.subtype == 'sparse_vec':
+            self.weights.append(nn.Parameter(torch.randn(
+                (self.eigval_hidden_dim,)
+            )))
+            self.biases.append(nn.Parameter(torch.zeros(
+                (self.eigval_hidden_dim,)
+            )))
+            for n in range(1, self.eigval_num_hidden_layer):
+                self.weights.append(nn.Parameter(torch.randn(
+                    (self.eigval_hidden_dim, self.eigval_hidden_dim,)
+                )))
+                self.biases.append(nn.Parameter(torch.zeros(
+                    (self.eigval_hidden_dim,)
+                )))
+            self.weights.append(nn.Parameter(torch.randn(
+                (self.in_channels, self.out_channels, self.eigval_hidden_dim)
+            )))
+            self.biases.append(nn.Parameter(torch.zeros(
+                (self.in_channels, self.out_channels)
+            )))
+
+            # extra bias entry for the signals
+            self.biases.append(nn.Parameter(torch.zeros(
+                (self.out_channels,)
             )))
 
 
@@ -222,7 +255,7 @@ class EigvalLayer(nn.Module):
                 h = torch.einsum('ne,eo->no', evecs, h)
                 h_list.append(h)
 
-            elif self.subtype == 'cheb02_vec': # chebyshev recurrence shifted for 0 to 1
+            elif self.subtype == 'cheb02_vec': # chebyshev recurrence shifted for 0 to 2
                 s = [torch.ones(evals.shape), evals - 1]
                 for n in range(2, self._k):
                     s.append(2 * (evals - 1) * s[-1] - s[-2])
@@ -233,7 +266,33 @@ class EigvalLayer(nn.Module):
                 h = torch.einsum('ek,ei->eki', s, h) # broken up (should be faster now)
                 h = torch.einsum('kio,eki->eo', self.weights[0], h) # ^
                 h = torch.einsum('ne,eo->no', evecs, h)
+
+                # include bias and save
+                if self.bias_mode == 'spatial':
+                    #print(len(self.biases), self.biases[-1].shape, self.biases[-1].std())
+                    h = h + self.biases[-1].view(1,-1)
+                    #print(h)
                 h_list.append(h)
+
+            elif self.subtype == 'sparse_vec':
+                s = self.spectral_activation(self.weights[0].view(-1,1) * evals.view(1,-1) \
+                        + self.biases[0].view(-1,1))
+                for n in range(1, self.eigval_num_hidden_layer - 1):
+                    s = self.spectral_activation(
+                        torch.einsum('xy,xe->ye',self.weights[n],s) + self.biases[n].view(-1,1))
+                #print(self.weights[self.eigval_num_hidden_layer].shape, s.shape)
+                s = torch.einsum('iox,xe->ioe',self.weights[self.eigval_num_hidden_layer], s) \
+                        + self.biases[self.eigval_num_hidden_layer].unsqueeze(2)
+                
+                h = torch.einsum('ne,ni->ei', evecs, feat)
+                h = torch.einsum('ioe,ei->eo', s, h)
+                h = torch.einsum('ne,eo->no', evecs, h)
+                
+                # include bias and save
+                if self.bias_mode == 'spatial':
+                    h = h + self.biases[-1].view(1,-1)
+                h_list.append(h)
+                
             
 
         # Recompile the filtered signals into a batch

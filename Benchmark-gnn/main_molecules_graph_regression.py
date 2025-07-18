@@ -30,6 +30,7 @@ from nets.molecules_graph_regression.ChebNet import ChebNet  # import the ChebNe
 from data.data import LoadData  # import dataset
 from layers.Spec_layer import SpecLayer # BW
 from layers.Eigval_layer import EigvalLayer # BW
+from layers.Cheb_augmented_layer import ChebAugmentedLayer
 
 """
     GPU Setup
@@ -114,6 +115,14 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     EigvalLayer.subtype = net_params.get('subtype', 'dense')
     EigvalLayer.normalized_laplacian = net_params.get('normalized_laplacian', False)
     EigvalLayer.eigval_norm = net_params.get('eigval_norm', '')
+    EigvalLayer.bias_mode = net_params.get('bias_mode', '')
+    EigvalLayer.eigval_hidden_dim = net_params.get('eigval_hidden_dim', 10)
+    EigvalLayer.eigval_num_hidden_layer = net_params.get('eigval_num_hidden_layer', 3)
+
+    # BW: Save global parameters required by ChebAugmentedLayer
+    ChebAugmentedLayer.num_eigs = net_params.get('num_eigs', 15)
+    ChebAugmentedLayer.eigval_hidden_dim = net_params.get('eigval_hidden_dim', 10)
+    ChebAugmentedLayer.eigval_num_hidden_layer = net_params.get('eigval_num_hidden_layer', 3)
 
     # BW
     model = ChebNet(net_params, model=MODEL_NAME)
@@ -277,7 +286,7 @@ def main():
                         help='filters parallel-wise process "features" (default), "eigen", or "none" (fully-connected mode)') # BW
     parser.add_argument('--with_biases', dest='biases', action='store_true') # BW
     parser.add_argument('--no_biases', dest='biases', action='store_false') # BW
-    parser.set_defaults(biases=True) # BW
+    #parser.set_defaults(biases=True) # BW
     parser.add_argument('--l1_reg', type=float,
                         help='weight of L1 regularization in the loss') # BW
     parser.add_argument('--l2_reg', type=float,
@@ -288,6 +297,12 @@ def main():
                         help='whether to use normalized laplacian') # BW
     parser.add_argument('--eigval_norm', type=str,
                         help='normalization of the eigenvalues') # BW
+    parser.add_argument('--bias_mode', type=str,
+                        help='type of bias to include in kernel construction modes') # BW
+    parser.add_argument('--eigval_hidden_dim', type=int,
+                        help='hidden dimension of eigenvalue filter') # BW
+    parser.add_argument('--eigval_num_hidden_layer', type=int,
+                        help='number of hidden layers of eigenvalue filter') # BW
     args = parser.parse_args()
     with open(args.config) as f:
         config = json.load(f)
@@ -391,6 +406,12 @@ def main():
         net_params['normalized_laplacian'] = args.normalized_laplacian
     if args.eigval_norm is not None:
         net_params['eigval_norm'] = args.eigval_norm
+    if args.bias_mode is not None:
+        net_params['bias_mode'] = args.biases
+    if args.eigval_hidden_dim is not None:
+        net_params['eigval_hidden_dim'] = args.eigval_hidden_dim
+    if args.eigval_num_hidden_layer is not None:
+        net_params['eigval_num_hidden_layer'] = args.eigval_num_hidden_layer
 
     # ZINC
     net_params['num_atom_type'] = dataset.num_atom_type

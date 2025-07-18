@@ -3,9 +3,9 @@
     "use": true,
     "id": 0
   },
-  "model": "EigvalFilters",
+  "model": "ChebAugmentedFilters",
   "dataset": "ZINC",
-  "out_dir": "out/molecules_graph_regression/",
+  "out_dir": "out/molecules_graph_regression_no_rsd/",
   "params": {
     "seed": 41,
     "epochs": 1000,
@@ -22,7 +22,7 @@
     "L": 4,
     "hidden_dim": 106,
     "out_dim": 106,
-    "residual": true,
+    "residual": false,
     "readout": "mean",
     "k": 2,
     "in_feat_dropout": 0.0,
@@ -30,11 +30,7 @@
     "graph_norm": true,
     "batch_norm": true,
     "self_loop": false,
-    "subtype": "cheb02_vec",
-    "normalized_laplacian": true,
-    "eigval_norm": "",
-    "num_eigs": 40,
-    "bias_mode": "spatial",
+    "num_eigs": 15,
     "eigval_hidden_dim": 10,
     "eigval_num_hidden_layer": 3
   }

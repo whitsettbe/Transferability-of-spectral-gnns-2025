@@ -9,6 +9,7 @@ from layers.Cheb_layer import ChebLayer
 from layers.mlp_readout_layer import MLPReadout
 from layers.Spec_layer import SpecLayer
 from layers.Eigval_layer import EigvalLayer
+from layers.Cheb_augmented_layer import ChebAugmentedLayer
 
 class ChebNet(nn.Module):
     def __init__(self, net_params, model='ChebNet'):
@@ -37,6 +38,8 @@ class ChebNet(nn.Module):
             layer = SpecLayer
         elif model == 'EigvalFilters':
             layer = EigvalLayer
+        elif model == 'ChebAugmentedFilters':
+            layer = ChebAugmentedLayer
 
         self.layers = nn.ModuleList([layer(hidden_dim, hidden_dim, self.k, F.relu, dropout,
                                                self.graph_norm, self.batch_norm, self.residual) for _ in

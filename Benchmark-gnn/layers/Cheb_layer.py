@@ -80,6 +80,7 @@ class ChebLayer(nn.Module):
 
             # Xi(x), i = 2...k
             for _ in range(2, self._k):
+                print(0/0)
                 h = unnLaplacian(X_1, D_sqrt, g)
                 X_i = - 2 * re_norm * h + X_1 * 2 * (re_norm - 1) - X_0
 
