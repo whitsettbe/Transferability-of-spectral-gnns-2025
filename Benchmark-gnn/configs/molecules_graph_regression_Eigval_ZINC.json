@@ -24,18 +24,22 @@
     "out_dim": 106,
     "residual": true,
     "readout": "mean",
-    "k": 2,
+    "k": 4,
     "in_feat_dropout": 0.0,
     "dropout": 0.0,
     "graph_norm": true,
     "batch_norm": true,
     "self_loop": false,
-    "subtype": "cheb02_vec",
-    "normalized_laplacian": true,
-    "eigval_norm": "",
+    "subtype": "rational_vec",
+    "normalized_laplacian": false,
+    "post_normalized": true,
+    "eigval_norm": "scale(0,2)_all",
     "num_eigs": 40,
     "bias_mode": "spatial",
-    "eigval_hidden_dim": 10,
-    "eigval_num_hidden_layer": 3
+    "eigval_hidden_dim": 5,
+    "eigval_num_hidden_layer": 3,
+    "l1_reg": 0.0,
+    "l2_reg": 0.0,
+    "gen_reg": 1e-4
   }
 }

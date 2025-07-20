@@ -3,6 +3,7 @@ import dgl.function as fn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import math
 
 """
     Eigenvalue layer - learn a linear map on the signal by nonlinear computation from the Laplacian eigenvalues
@@ -16,6 +17,8 @@ class EigvalLayer(nn.Module):
     bias_mode = "" # can be "", spatial, or spectral
     eigval_hidden_dim = None
     eigval_num_hidden_layer = None
+    normalized_laplacian = None
+    post_normalized = None
 
     @staticmethod
     def _graph_hash(g):
@@ -49,6 +52,9 @@ class EigvalLayer(nn.Module):
             if EigvalLayer.eigval_norm == "scale(-1,1)_all":
                 torch_eigenvalues = torch_eigenvalues / torch_eigenvalues.max()
                 torch_eigenvalues = 2 * torch_eigenvalues - 1
+            elif EigvalLayer.eigval_norm == "scale(0,2)_all":
+                torch_eigenvalues = torch_eigenvalues / torch_eigenvalues.max()
+                torch_eigenvalues = 2 * torch_eigenvalues
 
             # Remove high-end spectrum
             torch_eigenvectors = torch_eigenvectors[:, :EigvalLayer.num_eigs].to(g.device)
@@ -136,12 +142,25 @@ class EigvalLayer(nn.Module):
             )))
 
         elif self.subtype == 'cheb02_vec':
-            self.weights.append(nn.Parameter(torch.randn(
-                (self._k, self.in_channels, self.out_channels)
-            )))
-            self.biases.append(nn.Parameter(torch.zeros(
-                (self.out_channels,)
-            )))
+            # Use PyTorch Linear-style initialization
+            weight = nn.Parameter(torch.empty((self._k, self.in_channels, self.out_channels)))
+            nn.init.kaiming_uniform_(weight, a=math.sqrt(5))
+            self.weights.append(weight)
+            
+            # Initialize bias the same way as nn.Linear
+            fan_in = self._k * self.in_channels  # fan_in for our weight tensor
+            bound = 1 / math.sqrt(fan_in)
+            bias = nn.Parameter(torch.empty((self.out_channels,)))
+            nn.init.uniform_(bias, -bound, bound)
+            self.biases.append(bias)
+
+        #elif self.subtype == 'cheb02_vec':
+        #    self.weights.append(nn.Parameter(torch.randn(
+        #        (self._k, self.in_channels, self.out_channels)
+        #    )))
+        #    self.biases.append(nn.Parameter(torch.zeros(
+        #        (self.out_channels,)
+        #    )))
 
         elif self.subtype == 'sparse_vec':
             self.weights.append(nn.Parameter(torch.randn(
@@ -168,6 +187,18 @@ class EigvalLayer(nn.Module):
             self.biases.append(nn.Parameter(torch.zeros(
                 (self.out_channels,)
             )))
+        
+        elif self.subtype == 'rational_vec':
+            # Rational function approximation of spectral filters
+            # Each filter is a ratio of polynomials in eigenvalues
+            self.numerator_weights = nn.Parameter(torch.randn(
+                (self._k, self.in_channels, self.out_channels)
+            ))
+            self.denominator_weights = nn.Parameter(torch.randn(
+                (self._k, self.in_channels, self.out_channels)
+            ))
+            # Add small constant to avoid division by zero
+            self.epsilon = 1e-6
 
 
         # Pick an activation for the spectral construction
@@ -191,6 +222,9 @@ class EigvalLayer(nn.Module):
         h_list = []
         for graph, feat in zip(graphs, features):
             evals,evecs = self._get_eigenvectors(graph)
+            if self.post_normalized:
+                adj = graph.adjacency_matrix().to_dense()
+                d_12 = torch.pow(adj.sum(dim=1), -0.5).view(-1,1)
 
             # Build and apply a filter from the eigenvalues
             if self.subtype == 'dense':
@@ -262,16 +296,16 @@ class EigvalLayer(nn.Module):
                 s = torch.stack(s, dim=1)
                 #s = torch.einsum('kio,ek->eio', self.weights[0], s)
 
-                h = torch.einsum('ne,ni->ei', evecs, feat)
+                h = feat * d_12 if self.post_normalized else feat
+                h = torch.einsum('ne,ni->ei', evecs, h)
                 h = torch.einsum('ek,ei->eki', s, h) # broken up (should be faster now)
                 h = torch.einsum('kio,eki->eo', self.weights[0], h) # ^
                 h = torch.einsum('ne,eo->no', evecs, h)
+                h = h * d_12 if self.post_normalized else h
 
                 # include bias and save
                 if self.bias_mode == 'spatial':
-                    #print(len(self.biases), self.biases[-1].shape, self.biases[-1].std())
                     h = h + self.biases[-1].view(1,-1)
-                    #print(h)
                 h_list.append(h)
 
             elif self.subtype == 'sparse_vec':
@@ -284,11 +318,37 @@ class EigvalLayer(nn.Module):
                 s = torch.einsum('iox,xe->ioe',self.weights[self.eigval_num_hidden_layer], s) \
                         + self.biases[self.eigval_num_hidden_layer].unsqueeze(2)
                 
+                h = feat * d_12 if self.post_normalized else feat
                 h = torch.einsum('ne,ni->ei', evecs, feat)
                 h = torch.einsum('ioe,ei->eo', s, h)
                 h = torch.einsum('ne,eo->no', evecs, h)
+                h = h * d_12 if self.post_normalized else h
                 
                 # include bias and save
+                if self.bias_mode == 'spatial':
+                    h = h + self.biases[-1].view(1,-1)
+                h_list.append(h)
+                
+            elif self.subtype == 'rational_vec':
+                # Compute rational function filters
+                eval_powers = [torch.ones_like(evals)]
+                for k in range(1, self._k):
+                    eval_powers.append(eval_powers[-1] * evals)
+                eval_stack = torch.stack(eval_powers, dim=0)  # (k, num_eigs)
+                
+                # Compute numerator and denominator
+                numerator = torch.einsum('kio,ke->ioe', self.numerator_weights, eval_stack)
+                denominator = torch.einsum('kio,ke->ioe', self.denominator_weights, eval_stack)
+                
+                # Add epsilon to avoid division by zero and compute ratio
+                s = numerator / (torch.abs(denominator) + self.epsilon)
+                
+                h = feat * d_12 if self.post_normalized else feat
+                h = torch.einsum('ne,ni->ei', evecs, h)
+                h = torch.einsum('ioe,ei->eo', s, h)
+                h = torch.einsum('ne,eo->no', evecs, h)
+                h = h * d_12 if self.post_normalized else h
+                
                 if self.bias_mode == 'spatial':
                     h = h + self.biases[-1].view(1,-1)
                 h_list.append(h)
@@ -312,6 +372,16 @@ class EigvalLayer(nn.Module):
 
         h = self.dropout(h)
         return h
+
+    def general_regularization_loss(self):
+        """Compute regularization loss for spectral filters"""
+        reg_loss = 0.0
+        
+        if self.subtype == 'rational_vec':
+            # Stability regularization for rational functions
+            reg_loss += torch.mean(torch.abs(self.denominator_weights))
+            
+        return reg_loss
 
     def __repr__(self):
         return '{}(in_channels={}, out_channels={}, k={})'.format(

@@ -11,7 +11,13 @@ from layers.Spec_layer import SpecLayer
 from layers.Eigval_layer import EigvalLayer
 from layers.Cheb_augmented_layer import ChebAugmentedLayer
 
+# BW
+from torch import norm as torch_norm
+
 class ChebNet(nn.Module):
+    l1_reg = 0.0
+    l2_reg = 0.0
+    
     def __init__(self, net_params, model='ChebNet'):
         super().__init__()
         num_atom_type = net_params['num_atom_type']
@@ -74,4 +80,37 @@ class ChebNet(nn.Module):
     def loss(self, scores, targets):
         # loss = nn.MSELoss()(scores,targets)
         loss = nn.L1Loss()(scores, targets)
+        verbose = False
+        if verbose:
+            print('target loss', loss)
+
+        # BW: add regularization
+        if self.l1_reg > 0.0:
+            l1_loss = 0.0
+            for param in self.parameters():
+                l1_loss += torch_norm(param, p=1)
+            if verbose:
+                print('l1_loss', l1_loss)
+            loss += self.l1_reg * l1_loss
+
+        if self.l2_reg > 0.0:
+            l2_loss = 0.0
+            for param in self.parameters():
+                l2_loss += torch_norm(param, p=2)
+            if verbose:
+                print('l2_loss', l2_loss)
+            loss += self.l2_reg * l2_loss
+        
+        # BW: allow other regularization specific to the layer subtype
+        if self.gen_reg > 0.0:
+            reg_loss = 0.0
+            for layer in self.layers:
+                if hasattr(layer, 'general_regularization_loss'):
+                    reg_loss += layer.general_regularization_loss()
+            if verbose:
+                print('reg_loss', reg_loss)
+            loss += self.gen_reg * reg_loss
+
+        if verbose:
+            print()
         return loss

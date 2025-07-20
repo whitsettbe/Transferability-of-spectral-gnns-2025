@@ -30,7 +30,7 @@ from nets.molecules_graph_regression.ChebNet import ChebNet  # import the ChebNe
 from data.data import LoadData  # import dataset
 from layers.Spec_layer import SpecLayer # BW
 from layers.Eigval_layer import EigvalLayer # BW
-from layers.Cheb_augmented_layer import ChebAugmentedLayer
+from layers.Cheb_augmented_layer import ChebAugmentedLayer # BW
 
 """
     GPU Setup
@@ -114,6 +114,7 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     EigvalLayer.num_eigs = net_params.get('num_eigs',15)
     EigvalLayer.subtype = net_params.get('subtype', 'dense')
     EigvalLayer.normalized_laplacian = net_params.get('normalized_laplacian', False)
+    EigvalLayer.post_normalized = net_params.get('post_normalized', False)
     EigvalLayer.eigval_norm = net_params.get('eigval_norm', '')
     EigvalLayer.bias_mode = net_params.get('bias_mode', '')
     EigvalLayer.eigval_hidden_dim = net_params.get('eigval_hidden_dim', 10)
@@ -123,6 +124,10 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     ChebAugmentedLayer.num_eigs = net_params.get('num_eigs', 15)
     ChebAugmentedLayer.eigval_hidden_dim = net_params.get('eigval_hidden_dim', 10)
     ChebAugmentedLayer.eigval_num_hidden_layer = net_params.get('eigval_num_hidden_layer', 3)
+
+    # BW: Inform ChebNet of the regularization weights
+    ChebNet.l1_reg = net_params.get('l1_reg', 0.0)
+    ChebNet.l2_reg = net_params.get('l2_reg', 0.0)
 
     # BW
     model = ChebNet(net_params, model=MODEL_NAME)
@@ -295,6 +300,8 @@ def main():
                         help='subtype for the eigenvalue-based filter') # BW
     parser.add_argument('--normalized_laplacian', type=bool,
                         help='whether to use normalized laplacian') # BW
+    parser.add_argument('--post_normalized', type=bool,
+                        help='whether to normalize features separately from laplacian calculation') # BW
     parser.add_argument('--eigval_norm', type=str,
                         help='normalization of the eigenvalues') # BW
     parser.add_argument('--bias_mode', type=str,
@@ -404,6 +411,8 @@ def main():
         net_params['subtype'] = args.subtype
     if args.normalized_laplacian is not None:
         net_params['normalized_laplacian'] = args.normalized_laplacian
+    if args.post_normalized is not None:
+        net_params['post_normalized'] = args.post_normalized
     if args.eigval_norm is not None:
         net_params['eigval_norm'] = args.eigval_norm
     if args.bias_mode is not None:
