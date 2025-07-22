@@ -15,8 +15,9 @@ from layers.Cheb_augmented_layer import ChebAugmentedLayer
 from torch import norm as torch_norm
 
 class ChebNet(nn.Module):
-    l1_reg = 0.0
-    l2_reg = 0.0
+    l1_reg = None
+    l2_reg = None
+    gen_reg = None  # General regularization for spectral filters
     
     def __init__(self, net_params, model='ChebNet'):
         super().__init__()

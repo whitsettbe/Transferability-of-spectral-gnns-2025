@@ -119,6 +119,8 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     EigvalLayer.bias_mode = net_params.get('bias_mode', '')
     EigvalLayer.eigval_hidden_dim = net_params.get('eigval_hidden_dim', 10)
     EigvalLayer.eigval_num_hidden_layer = net_params.get('eigval_num_hidden_layer', 3)
+    EigvalLayer.eigmod = net_params.get('eigmod', '')
+    EigvalLayer.eigInFiles = net_params.get('eigInFiles', dict())
 
     # BW: Save global parameters required by ChebAugmentedLayer
     ChebAugmentedLayer.num_eigs = net_params.get('num_eigs', 15)
@@ -128,6 +130,7 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     # BW: Inform ChebNet of the regularization weights
     ChebNet.l1_reg = net_params.get('l1_reg', 0.0)
     ChebNet.l2_reg = net_params.get('l2_reg', 0.0)
+    ChebNet.gen_reg = net_params.get('gen_reg', 0.0)
 
     # BW
     model = ChebNet(net_params, model=MODEL_NAME)
@@ -310,6 +313,16 @@ def main():
                         help='hidden dimension of eigenvalue filter') # BW
     parser.add_argument('--eigval_num_hidden_layer', type=int,
                         help='number of hidden layers of eigenvalue filter') # BW
+    parser.add_argument('--gen_reg', type=float,
+                        help='weight of general regularization in the loss') # BW
+    parser.add_argument('--eigmod', type=str,
+                        help='modifications to eigenvectors (including imports)') # BW
+    parser.add_argument('--eigTrainFile', type=str,
+                        help='file with eigenvectors for training') # BW
+    parser.add_argument('--eigTestFile', type=str,
+                        help='file with eigenvectors for testing') # BW
+    parser.add_argument('--eigValFile', type=str,
+                        help='file with eigenvectors for validation') # BW
     args = parser.parse_args()
     with open(args.config) as f:
         config = json.load(f)
@@ -421,6 +434,28 @@ def main():
         net_params['eigval_hidden_dim'] = args.eigval_hidden_dim
     if args.eigval_num_hidden_layer is not None:
         net_params['eigval_num_hidden_layer'] = args.eigval_num_hidden_layer
+    if args.gen_reg is not None:
+        net_params['gen_reg'] = args.gen_reg
+    if args.eigmod is not None:
+        net_params['eigmod'] = args.eigmod
+    if args.eigTrainFile is not None:
+        net_params['eigInFiles'] = {
+            'train': args.eigTrainFile,
+            'test': net_params.get('eigTestFile', None),
+            'val': net_params.get('eigValFile', None)
+        }
+    if args.eigTestFile is not None:
+        net_params['eigInFiles'] = {
+            'train': net_params.get('eigTrainFile', None),
+            'test': args.eigTestFile,
+            'val': net_params.get('eigValFile', None)
+        }
+    if args.eigValFile is not None:
+        net_params['eigInFiles'] = {
+            'train': net_params.get('eigTrainFile', None),
+            'test': net_params.get('eigTestFile', None),
+            'val': args.eigValFile
+        }
 
     # ZINC
     net_params['num_atom_type'] = dataset.num_atom_type

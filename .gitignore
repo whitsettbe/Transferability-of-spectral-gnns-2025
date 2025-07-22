@@ -133,3 +133,4 @@ dmypy.json
 Benchmark-gnn/data/molecules
 Benchmark-gnn/data/SBMs
 Benchmark-gnn/out
+Benchmark-gnn/supp_data/molecules
