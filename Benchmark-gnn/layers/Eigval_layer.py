@@ -23,6 +23,8 @@ class EigvalLayer(nn.Module):
     post_normalized = None
     eigmod = None
     eigInFiles = None
+    fixMissingPhi1 = True # whether to add a constant 1 as the first eigenvector (phi_1)
+    extraOrtho = False # whether to do Graham-Schmidt orthogonalization on the eigenvectors
     
     @staticmethod
     def _graph_info_hash(num_nodes, edge_index):
@@ -51,7 +53,11 @@ class EigvalLayer(nn.Module):
         # Check if eigenvectors should be imported
         if EigvalLayer.eigmod == "import_csv" and graph_key not in EigvalLayer.eig_dict:
             metis_import(EigvalLayer.eig_dict, EigvalLayer._graph_info_hash, EigvalLayer.eigInFiles,
-                         EigvalLayer.num_eigs, device=g.device)
+                         EigvalLayer.num_eigs, fixMissingPhi1=EigvalLayer.fixMissingPhi1,
+                         device=g.device,
+                         normalizedLaplacian=EigvalLayer.normalized_laplacian,
+                         eigval_norm=EigvalLayer.eigval_norm,
+                         extraOrtho=EigvalLayer.extraOrtho)
             if graph_key in EigvalLayer.eig_dict: # ideally this should always be true
                 return EigvalLayer.eig_dict[graph_key]
         
@@ -80,6 +86,36 @@ class EigvalLayer(nn.Module):
         # Remove high-end spectrum
         torch_eigenvectors = torch_eigenvectors[:, :EigvalLayer.num_eigs].to(g.device)
         torch_eigenvalues = torch_eigenvalues[:EigvalLayer.num_eigs].to(g.device)
+        
+        if EigvalLayer.eigval_norm == "scale(0,2)_sub":
+            # Scale the eigenvalues to [0, 2] range
+            torch_eigenvalues = torch_eigenvalues / torch_eigenvalues.max()
+            torch_eigenvalues = 2 * torch_eigenvalues
+        
+        # Replace the eigenvectors with a random orthonormal basis for the eigenspace, if requested
+        if EigvalLayer.eigmod == "rand_basis":
+            # Generate random vectors
+            r = torch.randn((torch_eigenvectors.size(0), EigvalLayer.num_eigs), device=g.device)
+            # Project into the eigenspace
+            r = torch_eigenvectors @ (torch_eigenvectors.T @ r)
+            # Orthonormalize
+            for i in range(r.size(1)):
+                for j in range(i):
+                    r[:, i] -= torch.dot(r[:, i], r[:, j]) * r[:, j]
+                norm = torch.norm(r[:, i])
+                if norm > 0:
+                    r[:, i] = r[:, i] / norm
+            torch_eigenvectors = r
+                    
+            # Generate eigenvalues as Rayleigh quotients
+            quots = torch.einsum('ze,nz,ne->e', r, laplacian, r)
+            if EigvalLayer.eigval_norm == "scale(-1,1)_all":
+                quots = quots / quots.max()
+                quots = 2 * quots - 1
+            elif EigvalLayer.eigval_norm in ["scale(0,2)_all", "scale(0,2)_sub"]:
+                quots = quots / quots.max()
+                quots = 2 * quots
+            torch_eigenvalues = quots[:EigvalLayer.num_eigs]
         
         # Pad with trailing zeros
         if torch_eigenvectors.size(1) < EigvalLayer.num_eigs:
@@ -173,14 +209,6 @@ class EigvalLayer(nn.Module):
             bias = nn.Parameter(torch.empty((self.out_channels,)))
             nn.init.uniform_(bias, -bound, bound)
             self.biases.append(bias)
-
-        #elif self.subtype == 'cheb02_vec':
-        #    self.weights.append(nn.Parameter(torch.randn(
-        #        (self._k, self.in_channels, self.out_channels)
-        #    )))
-        #    self.biases.append(nn.Parameter(torch.zeros(
-        #        (self.out_channels,)
-        #    )))
 
         elif self.subtype == 'sparse_vec':
             weight, bias = param_weights_and_biases(

@@ -121,6 +121,8 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     EigvalLayer.eigval_num_hidden_layer = net_params.get('eigval_num_hidden_layer', 3)
     EigvalLayer.eigmod = net_params.get('eigmod', '')
     EigvalLayer.eigInFiles = net_params.get('eigInFiles', dict())
+    EigvalLayer.fixMissingPhi1 = net_params.get('fixMissingPhi1', True)
+    EigvalLayer.extraOrtho = net_params.get('extraOrtho', False)
 
     # BW: Save global parameters required by ChebAugmentedLayer
     ChebAugmentedLayer.num_eigs = net_params.get('num_eigs', 15)
@@ -323,6 +325,10 @@ def main():
                         help='file with eigenvectors for testing') # BW
     parser.add_argument('--eigValFile', type=str,
                         help='file with eigenvectors for validation') # BW
+    parser.add_argument('--fixMissingPhi1', type=bool,
+                        help='whether to add a constant 1 as the first eigenvector (phi_1)') # BW
+    parser.add_argument('--extraOrtho', type=bool,
+                        help='whether to do extra orthogonalization for imported eigenvectors') # BW
     args = parser.parse_args()
     with open(args.config) as f:
         config = json.load(f)
@@ -456,6 +462,10 @@ def main():
             'test': net_params.get('eigTestFile', None),
             'val': args.eigValFile
         }
+    if args.fixMissingPhi1 is not None:
+        net_params['fixMissingPhi1'] = args.fixMissingPhi1
+    if args.extraOrtho is not None:
+        net_params['extraOrtho'] = args.extraOrtho
 
     # ZINC
     net_params['num_atom_type'] = dataset.num_atom_type
