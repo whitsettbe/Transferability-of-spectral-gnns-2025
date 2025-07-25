@@ -126,8 +126,18 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
 
     # BW: Save global parameters required by ChebAugmentedLayer
     ChebAugmentedLayer.num_eigs = net_params.get('num_eigs', 15)
+    ChebAugmentedLayer.subtype = net_params.get('subtype', 'dense')
+    ChebAugmentedLayer.normalized_laplacian = net_params.get('normalized_laplacian', False)
+    ChebAugmentedLayer.post_normalized = net_params.get('post_normalized', False)
+    ChebAugmentedLayer.eigval_norm = net_params.get('eigval_norm', '')
+    ChebAugmentedLayer.bias_mode = net_params.get('bias_mode', '')
     ChebAugmentedLayer.eigval_hidden_dim = net_params.get('eigval_hidden_dim', 10)
     ChebAugmentedLayer.eigval_num_hidden_layer = net_params.get('eigval_num_hidden_layer', 3)
+    ChebAugmentedLayer.eigmod = net_params.get('eigmod', '')
+    ChebAugmentedLayer.eigInFiles = net_params.get('eigInFiles', dict())
+    ChebAugmentedLayer.fixMissingPhi1 = net_params.get('fixMissingPhi1', True)
+    ChebAugmentedLayer.extraOrtho = net_params.get('extraOrtho', False)
+    ChebAugmentedLayer.k_aug = net_params.get('k_aug', 4)  # number of monomials for augmented filter
 
     # BW: Inform ChebNet of the regularization weights
     ChebNet.l1_reg = net_params.get('l1_reg', 0.0)
@@ -329,6 +339,8 @@ def main():
                         help='whether to add a constant 1 as the first eigenvector (phi_1)') # BW
     parser.add_argument('--extraOrtho', type=bool,
                         help='whether to do extra orthogonalization for imported eigenvectors') # BW
+    parser.add_argument('--k_aug', type=int,
+                        help='number of monomials for augmented filter') # BW
     args = parser.parse_args()
     with open(args.config) as f:
         config = json.load(f)
@@ -466,6 +478,8 @@ def main():
         net_params['fixMissingPhi1'] = args.fixMissingPhi1
     if args.extraOrtho is not None:
         net_params['extraOrtho'] = args.extraOrtho
+    if args.k_aug is not None:
+        net_params['k_aug'] = args.k_aug
 
     # ZINC
     net_params['num_atom_type'] = dataset.num_atom_type

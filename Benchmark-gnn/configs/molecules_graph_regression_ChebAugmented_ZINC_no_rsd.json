@@ -5,7 +5,7 @@
   },
   "model": "ChebAugmentedFilters",
   "dataset": "ZINC",
-  "out_dir": "out/molecules_graph_regression_no_rsd/",
+  "out_dir": "out/molecules_graph_regression/",
   "params": {
     "seed": 41,
     "epochs": 1000,
@@ -22,16 +22,33 @@
     "L": 4,
     "hidden_dim": 106,
     "out_dim": 106,
-    "residual": false,
+    "residual": true,
     "readout": "mean",
     "k": 2,
+    "k_aug": 4,
     "in_feat_dropout": 0.0,
     "dropout": 0.0,
     "graph_norm": true,
     "batch_norm": true,
     "self_loop": false,
+    "subtype": "rational_vec",
+    "normalized_laplacian": true,
+    "post_normalized": false,
+    "eigval_norm": "",
     "num_eigs": 15,
-    "eigval_hidden_dim": 10,
-    "eigval_num_hidden_layer": 3
+    "bias_mode": "spatial",
+    "eigval_hidden_dim": 5,
+    "eigval_num_hidden_layer": 3,
+    "l1_reg": 0.0,
+    "l2_reg": 0.0,
+    "gen_reg": 1,
+    "eigmod": "import_csv",
+    "eigInFiles": {
+            "train": "supp_data/molecules/zinc_train_kway.csv",
+            "test": "supp_data/molecules/zinc_test_part_kway.csv",
+            "val": "supp_data/molecules/zinc_val_kway.csv"
+        },
+    "fixMissingPhi1": true,
+    "extraOrtho": false
   }
 }
