@@ -34,7 +34,13 @@ def metis_import(out_dict, info_hash, eigInFiles,
                         signals[i] = signals[i] / norm
 
             # normalize the signals
+            #if signals.pow(2).sum(1).min() == 0:
+            #    print(signals)
+            #    print(0/0)
             signals = signals / signals.pow(2).sum(1).pow(0.5).view((-1,1))
+            
+            # convert nan to zeros
+            signals[torch.isnan(signals)] = 0
             
             # Construct the graph laplacian from the edge_index and num_nodes.
             adj = torch.zeros((num_nodes, num_nodes), device=device)

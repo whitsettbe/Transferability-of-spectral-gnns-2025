@@ -252,12 +252,38 @@ class ChebAugmentedLayer(nn.Module):
             # Add small constant to avoid division by zero
             self.epsilon = 1e-6
             
+        elif self.subtype == 'rational_simp':
+            # Rational function approximation of spectral filters
+            # Each filter is a ratio of polynomials in eigenvalues
+            numer_weights, _ = param_weights_and_biases(
+                (self.k_aug, self.in_channels), tuple())
+            denom_weights, _ = param_weights_and_biases(
+                (self.k_aug, self.in_channels), tuple())
+            self.numerator_weights = numer_weights
+            self.denominator_weights = denom_weights
+            
+            # Add small constant to avoid division by zero
+            self.epsilon = 1e-6
+        
+        elif self.subtype == 'zero':
+            pass
+            
         self.batchnorm_h = nn.BatchNorm1d(out_dim)
         self.activation = activation
         self.dropout = nn.Dropout(dropout)
 
     # Process a single graph (allows parallelism)
     def process_single_graph(self, graph, feat):
+        debug = False
+        
+        # Intervene with a fake graph for testing
+        if self.subtype == 'zero' and debug:
+            #print(graph)
+            #print(feat, feat.shape)
+            #graph = dgl.graph(([0,1,2,1,2,3], [1,2,3,0,1,2]), num_nodes=4, device=feat.device)
+            #feat = torch.tensor([[1.,1,1,1], [1,-1,-1,1], [1,1,-1,-1], [1,-1,1,-1]], device=feat.device)
+            #feat = torch.rand(feat.shape, device=feat.device) # random features for testing
+            pass
         
         evals,evecs = self._get_eigenvectors(graph)
         if self.post_normalized:
@@ -391,6 +417,67 @@ class ChebAugmentedLayer(nn.Module):
                 h = h + self.biases[-1].view(1,-1)
             return h
 
+        elif self.subtype == 'rational_simp':
+            # Rational function approximation of spectral filters
+            # Each filter is a ratio of polynomials in eigenvalues
+            eval_powers = [torch.ones_like(evals)]
+            for k in range(1, self.k_aug):
+                eval_powers.append(eval_powers[-1] * evals)
+            eval_stack = torch.stack(eval_powers, dim=0)
+            
+            # Compute numerator and denominator
+            numerator = torch.einsum('ki,ke->ie', self.numerator_weights, eval_stack)
+            denominator = torch.einsum('ki,ke->ie', self.denominator_weights, eval_stack)
+            
+            # Add epsilon to avoid division by zero and compute ratio
+            s = numerator / (torch.abs(denominator) + self.epsilon)
+            
+            h = feat * d_12 if self.post_normalized else feat
+            h = torch.einsum('ne,ni->ei', evecs, h)
+            h = torch.einsum('ie,ei->ei', s, h)
+            h = torch.einsum('ne,ei->ni', evecs, h)
+            h = h * d_12 if self.post_normalized else h
+            
+            return h
+        
+        elif self.subtype == 'zero':
+            # Compute rational function filters
+            #eval_powers = [torch.ones_like(evals)]
+            #for k in range(1, self.k_aug):
+            #    eval_powers.append(eval_powers[-1] * evals)
+            #eval_stack = torch.stack(eval_powers, dim=0)  # (k, num_eigs)
+            
+            # Compute numerator and denominator
+            #numerator = torch.einsum('kio,ke->ioe', self.numerator_weights, eval_stack)
+            #denominator = torch.einsum('kio,ke->ioe', self.denominator_weights, eval_stack)
+            
+            # Add epsilon to avoid division by zero and compute ratio
+            #s = numerator / (torch.abs(denominator) + self.epsilon)
+            #s = torch.zeros((self.in_channels, self.out_channels, self.num_eigs), device=feat.device)  # zero filter
+            
+            # No operation, return input feature
+            #return feat
+            if debug:
+                print(evals, evecs)
+            h = feat * d_12 if self.post_normalized else feat
+            if debug:
+                print(h)
+            h = torch.einsum('ne,ni->ei', evecs, h)
+            if debug:
+                print(h)
+            #h = torch.einsum('ioe,ei->eo', s, h)
+            h = evals.view(-1,1) * h  # apply eigenvalues as a diagonal filter
+            if debug:
+                print(h)
+            h = torch.einsum('ne,eo->no', evecs, h)
+            if debug:
+                print(h)
+            h = h * d_12 if self.post_normalized else h
+            if debug:
+                print(0/0)
+            return h
+            
+
     # BW
     def _spectral_forward(self, g, feature):
         graphs = dgl.unbatch(g)
@@ -401,7 +488,6 @@ class ChebAugmentedLayer(nn.Module):
             h_list.append(self.process_single_graph(graph, feat))
 
         return torch.cat(h_list, dim=0)
-
 
 
     def forward(self, g, feature, lambda_max=None):
