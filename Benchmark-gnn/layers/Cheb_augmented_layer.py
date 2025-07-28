@@ -256,6 +256,19 @@ class ChebAugmentedLayer(nn.Module):
             # Rational function approximation of spectral filters
             # Each filter is a ratio of polynomials in eigenvalues
             numer_weights, _ = param_weights_and_biases(
+                (self.k_aug,), (self.in_channels,))
+            denom_weights, _ = param_weights_and_biases(
+                (self.k_aug,), (self.in_channels,))
+            self.numerator_weights = numer_weights
+            self.denominator_weights = denom_weights
+            
+            # Add small constant to avoid division by zero
+            self.epsilon = 1e-6
+            
+        elif self.subtype == 'cheb_rat_simp':
+            # Rational function approximation of spectral filters
+            # Each filter is a ratio of polynomials in eigenvalues
+            numer_weights, _ = param_weights_and_biases(
                 (self.k_aug, self.in_channels), tuple())
             denom_weights, _ = param_weights_and_biases(
                 (self.k_aug, self.in_channels), tuple())
@@ -264,7 +277,15 @@ class ChebAugmentedLayer(nn.Module):
             
             # Add small constant to avoid division by zero
             self.epsilon = 1e-6
+            
+        elif self.subtype == 'parallel_simp':
+            self.weights.append(param_weights_and_biases(
+                (1,), (self.num_eigs,))[0])
         
+        elif self.subtype == 'parallel_dense_simp':
+            self.weights.append(param_weights_and_biases(
+                (1,), (self.num_eigs, self.in_channels))[0])
+
         elif self.subtype == 'zero':
             pass
             
@@ -440,22 +461,53 @@ class ChebAugmentedLayer(nn.Module):
             
             return h
         
-        elif self.subtype == 'zero':
-            # Compute rational function filters
-            #eval_powers = [torch.ones_like(evals)]
-            #for k in range(1, self.k_aug):
-            #    eval_powers.append(eval_powers[-1] * evals)
-            #eval_stack = torch.stack(eval_powers, dim=0)  # (k, num_eigs)
+        elif self.subtype == 'cheb_rat_simp':
+            # Rational function approximation of spectral filters
+            # Each filter is a ratio of polynomials (from Chebyshev) in eigenvalues
+            eval_powers = [torch.ones_like(evals), evals - 1]
+            for k in range(2, self.k_aug):
+                eval_powers.append(2 * (evals - 1) * eval_powers[-1] - eval_powers[-2])
+            eval_stack = torch.stack(eval_powers, dim=0)
             
             # Compute numerator and denominator
-            #numerator = torch.einsum('kio,ke->ioe', self.numerator_weights, eval_stack)
-            #denominator = torch.einsum('kio,ke->ioe', self.denominator_weights, eval_stack)
+            numerator = torch.einsum('ki,ke->ie', self.numerator_weights, eval_stack)
+            denominator = torch.einsum('ki,ke->ie', self.denominator_weights, eval_stack)
             
             # Add epsilon to avoid division by zero and compute ratio
-            #s = numerator / (torch.abs(denominator) + self.epsilon)
-            #s = torch.zeros((self.in_channels, self.out_channels, self.num_eigs), device=feat.device)  # zero filter
+            s = numerator / (torch.abs(denominator) + self.epsilon)
             
-            # No operation, return input feature
+            h = feat * d_12 if self.post_normalized else feat
+            h = torch.einsum('ne,ni->ei', evecs, h)
+            h = torch.einsum('ie,ei->ei', s, h)
+            h = torch.einsum('ne,ei->ni', evecs, h)
+            h = h * d_12 if self.post_normalized else h
+            
+            return h
+        
+        elif self.subtype == 'parallel_simp':
+            
+            h = feat * d_12 if self.post_normalized else feat
+            h = torch.einsum('ne,ni->ei', evecs, h)
+            h = self.weights[0].view(-1,1) * h
+            #h = torch.einsum('e,ei->ei', self.weights[0].view(-1), h)
+            h = torch.einsum('ne,ei->ni', evecs, h)
+            h = h * d_12 if self.post_normalized else h
+            
+            return h
+        
+        elif self.subtype == 'parallel_dense_simp':
+            
+            h = feat * d_12 if self.post_normalized else feat
+            h = torch.einsum('ne,ni->ei', evecs, h)
+            h = self.weights[0].squeeze(0) * h
+            #h = torch.einsum('e,ei->ei', self.weights[0].view(-1), h)
+            h = torch.einsum('ne,ei->ni', evecs, h)
+            h = h * d_12 if self.post_normalized else h
+            
+            return h
+        
+        elif self.subtype == 'zero':
+            
             #return feat
             if debug:
                 print(evals, evecs)
@@ -567,6 +619,9 @@ class ChebAugmentedLayer(nn.Module):
             # Stability regularization for rational functions
             reg_loss += torch.mean(torch.abs(self.denominator_weights))
             
+        elif self.subtype == 'parallel_dense_simp':
+            reg_loss += torch.mean(torch.abs(self.weights[0]))
+
         return reg_loss
 
     def __repr__(self):

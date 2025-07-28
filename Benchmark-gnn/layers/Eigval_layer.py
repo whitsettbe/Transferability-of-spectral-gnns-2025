@@ -243,6 +243,11 @@ class EigvalLayer(nn.Module):
             
             # Add small constant to avoid division by zero
             self.epsilon = 1e-6
+        
+        elif self.subtype == 'parallel_dense_simp':
+            self.weights.append(param_weights_and_biases(
+                (1,), (self.num_eigs, self.in_channels))[0])
+            self.linear = nn.Linear(self.in_channels, self.out_channels)
 
 
         # Pick an activation for the spectral construction
@@ -390,6 +395,17 @@ class EigvalLayer(nn.Module):
                 h = h + self.biases[-1].view(1,-1)
             return h
         
+        elif self.subtype == 'parallel_dense_simp':
+            
+            h = feat * d_12 if self.post_normalized else feat
+            h = torch.einsum('ne,ni->ei', evecs, h)
+            h = self.weights[0].squeeze(0) * h
+            #h = torch.einsum('e,ei->ei', self.weights[0].view(-1), h)
+            h = torch.einsum('ne,ei->ni', evecs, h)
+            h = h * d_12 if self.post_normalized else h
+            h = self.linear(h) # mix features
+            return h
+        
 
     def forward(self, g, feature, lambda_max=None):
         # NOTE: what was lambda_max intended for in the older architecture??
@@ -430,6 +446,10 @@ class EigvalLayer(nn.Module):
         if self.subtype == 'rational_vec':
             # Stability regularization for rational functions
             reg_loss += torch.mean(torch.abs(self.denominator_weights))
+            
+        elif self.subtype == 'parallel_dense_simp':
+            # Regularize the filtering layer, not the fully-connected layer
+            reg_loss += torch.mean(torch.abs(self.weights[0]))
             
         return reg_loss
 
