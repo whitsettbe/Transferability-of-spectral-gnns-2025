@@ -37,8 +37,6 @@
     "eigval_norm": "",
     "num_eigs": 15,
     "bias_mode": "spatial",
-    "eigval_hidden_dim": 5,
-    "eigval_num_hidden_layer": 3,
     "l1_reg": 0.0,
     "l2_reg": 0.0,
     "gen_reg": 0.1,

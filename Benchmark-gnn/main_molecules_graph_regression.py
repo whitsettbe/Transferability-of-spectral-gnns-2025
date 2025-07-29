@@ -117,8 +117,6 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     EigvalLayer.post_normalized = net_params.get('post_normalized', False)
     EigvalLayer.eigval_norm = net_params.get('eigval_norm', '')
     EigvalLayer.bias_mode = net_params.get('bias_mode', '')
-    EigvalLayer.eigval_hidden_dim = net_params.get('eigval_hidden_dim', 10)
-    EigvalLayer.eigval_num_hidden_layer = net_params.get('eigval_num_hidden_layer', 3)
     EigvalLayer.eigmod = net_params.get('eigmod', '')
     EigvalLayer.eigInFiles = net_params.get('eigInFiles', dict())
     EigvalLayer.fixMissingPhi1 = net_params.get('fixMissingPhi1', True)
@@ -131,8 +129,6 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     ChebAugmentedLayer.post_normalized = net_params.get('post_normalized', False)
     ChebAugmentedLayer.eigval_norm = net_params.get('eigval_norm', '')
     ChebAugmentedLayer.bias_mode = net_params.get('bias_mode', '')
-    ChebAugmentedLayer.eigval_hidden_dim = net_params.get('eigval_hidden_dim', 10)
-    ChebAugmentedLayer.eigval_num_hidden_layer = net_params.get('eigval_num_hidden_layer', 3)
     ChebAugmentedLayer.eigmod = net_params.get('eigmod', '')
     ChebAugmentedLayer.eigInFiles = net_params.get('eigInFiles', dict())
     ChebAugmentedLayer.fixMissingPhi1 = net_params.get('fixMissingPhi1', True)
@@ -321,10 +317,6 @@ def main():
                         help='normalization of the eigenvalues') # BW
     parser.add_argument('--bias_mode', type=str,
                         help='type of bias to include in kernel construction modes') # BW
-    parser.add_argument('--eigval_hidden_dim', type=int,
-                        help='hidden dimension of eigenvalue filter') # BW
-    parser.add_argument('--eigval_num_hidden_layer', type=int,
-                        help='number of hidden layers of eigenvalue filter') # BW
     parser.add_argument('--gen_reg', type=float,
                         help='weight of general regularization in the loss') # BW
     parser.add_argument('--eigmod', type=str,
@@ -447,11 +439,7 @@ def main():
     if args.eigval_norm is not None:
         net_params['eigval_norm'] = args.eigval_norm
     if args.bias_mode is not None:
-        net_params['bias_mode'] = args.biases
-    if args.eigval_hidden_dim is not None:
-        net_params['eigval_hidden_dim'] = args.eigval_hidden_dim
-    if args.eigval_num_hidden_layer is not None:
-        net_params['eigval_num_hidden_layer'] = args.eigval_num_hidden_layer
+        net_params['bias_mode'] = args.bias_mode
     if args.gen_reg is not None:
         net_params['gen_reg'] = args.gen_reg
     if args.eigmod is not None:
