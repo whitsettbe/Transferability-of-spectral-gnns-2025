@@ -29,6 +29,9 @@ class DotDict(dict):
 
 from nets.SBMs_node_classification.ChebNet import ChebNet  # import GNNs
 from data.data import LoadData  # import dataset
+from layers.Spec_layer import SpecLayer # BW
+from layers.Eigval_layer import EigvalLayer # BW
+from layers.Cheb_augmented_layer import ChebAugmentedLayer # BW
 
 """
     GPU Setup
@@ -54,6 +57,7 @@ def gpu_setup(use_gpu, gpu_id):
 
 
 def view_model_param(MODEL_NAME, net_params):
+    return -1
     model = ChebNet(net_params)
     total_param = 0
     print("MODEL DETAILS:\n")
@@ -81,10 +85,13 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     root_log_dir, root_ckpt_dir, write_file_name, write_config_file = dirs
     device = net_params['device']
 
-    # Write network and optimization hyper-parameters in folder config/
+    # BW
+    # Write the network and optimization hyper-parameters in folder config/
+    modelInfo = """Dataset: {},\nModel: {}\n\nparams={}\n\nnet_params={}\n\n\nTotal Parameters: {}\n\n""".format(
+            DATASET_NAME, MODEL_NAME, params, net_params, net_params['total_param'])
     with open(write_config_file + '.txt', 'w') as f:
-        f.write("""Dataset: {},\nModel: {}\n\nparams={}\n\nnet_params={}\n\n\nTotal Parameters: {}\n\n""".format(
-            DATASET_NAME, MODEL_NAME, params, net_params, net_params['total_param']))
+        f.write(modelInfo)
+    print(modelInfo)
 
     log_dir = os.path.join(root_log_dir, "RUN_" + str(0))
     writer = SummaryWriter(log_dir=log_dir)
@@ -100,8 +107,45 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     print("Validation Graphs: ", len(valset))
     print("Test Graphs: ", len(testset))
     print("Number of Classes: ", net_params['n_classes'])
+    
+    # BW: Save global parameters required by SpecLayer
+    SpecLayer.num_eigs = net_params.get('num_eigs', 15)  # Set the number of eigenvectors for SpecLayer
+    SpecLayer.hidden_dim = net_params.get('hidden_dim', 150)
+    SpecLayer.group_by = net_params.get('filter_grouping', "features")
+    SpecLayer.biases = net_params.get('biases',True)
 
-    model = ChebNet(net_params)
+    # BW: Save global parameters required by EigvalLayer
+    EigvalLayer.num_eigs = net_params.get('num_eigs',15)
+    EigvalLayer.subtype = net_params.get('subtype', 'dense')
+    EigvalLayer.normalized_laplacian = net_params.get('normalized_laplacian', False)
+    EigvalLayer.post_normalized = net_params.get('post_normalized', False)
+    EigvalLayer.eigval_norm = net_params.get('eigval_norm', '')
+    EigvalLayer.bias_mode = net_params.get('bias_mode', '')
+    EigvalLayer.eigmod = net_params.get('eigmod', '')
+    EigvalLayer.eigInFiles = net_params.get('eigInFiles', dict())
+    EigvalLayer.fixMissingPhi1 = net_params.get('fixMissingPhi1', True)
+    EigvalLayer.extraOrtho = net_params.get('extraOrtho', False)
+
+    # BW: Save global parameters required by ChebAugmentedLayer
+    ChebAugmentedLayer.num_eigs = net_params.get('num_eigs', 15)
+    ChebAugmentedLayer.subtype = net_params.get('subtype', 'dense')
+    ChebAugmentedLayer.normalized_laplacian = net_params.get('normalized_laplacian', False)
+    ChebAugmentedLayer.post_normalized = net_params.get('post_normalized', False)
+    ChebAugmentedLayer.eigval_norm = net_params.get('eigval_norm', '')
+    ChebAugmentedLayer.bias_mode = net_params.get('bias_mode', '')
+    ChebAugmentedLayer.eigmod = net_params.get('eigmod', '')
+    ChebAugmentedLayer.eigInFiles = net_params.get('eigInFiles', dict())
+    ChebAugmentedLayer.fixMissingPhi1 = net_params.get('fixMissingPhi1', True)
+    ChebAugmentedLayer.extraOrtho = net_params.get('extraOrtho', False)
+    ChebAugmentedLayer.k_aug = net_params.get('k_aug', 4)  # number of monomials for augmented filter
+
+    # BW: Inform ChebNet of the regularization weights
+    ChebNet.l1_reg = net_params.get('l1_reg', 0.0)
+    ChebNet.l2_reg = net_params.get('l2_reg', 0.0)
+    ChebNet.gen_reg = net_params.get('gen_reg', 0.0)
+
+    # BW
+    model = ChebNet(net_params, model=MODEL_NAME)
     model = model.to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=params['init_lr'], weight_decay=params['weight_decay'])
@@ -250,6 +294,42 @@ def main():
     parser.add_argument('--max_time', help="Please give a value for max_time")
     parser.add_argument('--pos_enc_dim', help="Please give a value for pos_enc_dim")
     parser.add_argument('--pos_enc', help="Please give a value for pos_enc")
+    parser.add_argument('--num_eigs', type=int,
+                        help='number of eigenvectors to compute') # BW
+    parser.add_argument('--filter_grouping', type=str,
+                        help='filters parallel-wise process "features" (default), "eigen", or "none" (fully-connected mode)') # BW
+    parser.add_argument('--with_biases', dest='biases', action='store_true') # BW
+    parser.add_argument('--no_biases', dest='biases', action='store_false') # BW
+    parser.add_argument('--l1_reg', type=float,
+                        help='weight of L1 regularization in the loss') # BW
+    parser.add_argument('--l2_reg', type=float,
+                        help='weight of L2 regularization in the loss') # BW
+    parser.add_argument('--subtype', type=str,
+                        help='subtype for the eigenvalue-based filter') # BW
+    parser.add_argument('--normalized_laplacian', type=bool,
+                        help='whether to use normalized laplacian') # BW
+    parser.add_argument('--post_normalized', type=bool,
+                        help='whether to normalize features separately from laplacian calculation') # BW
+    parser.add_argument('--eigval_norm', type=str,
+                        help='normalization of the eigenvalues') # BW
+    parser.add_argument('--bias_mode', type=str,
+                        help='type of bias to include in kernel construction modes') # BW
+    parser.add_argument('--gen_reg', type=float,
+                        help='weight of general regularization in the loss') # BW
+    parser.add_argument('--eigmod', type=str,
+                        help='modifications to eigenvectors (including imports)') # BW
+    parser.add_argument('--eigTrainFile', type=str,
+                        help='file with eigenvectors for training') # BW
+    parser.add_argument('--eigTestFile', type=str,
+                        help='file with eigenvectors for testing') # BW
+    parser.add_argument('--eigValFile', type=str,
+                        help='file with eigenvectors for validation') # BW
+    parser.add_argument('--fixMissingPhi1', type=bool,
+                        help='whether to add a constant 1 as the first eigenvector (phi_1)') # BW
+    parser.add_argument('--extraOrtho', type=bool,
+                        help='whether to do extra orthogonalization for imported eigenvectors') # BW
+    parser.add_argument('--k_aug', type=int,
+                        help='number of monomials for augmented filter') # BW
     args = parser.parse_args()
     with open(args.config) as f:
         config = json.load(f)
@@ -342,6 +422,56 @@ def main():
         net_params['pos_enc'] = True if args.pos_enc == 'True' else False
     if args.pos_enc_dim is not None:
         net_params['pos_enc_dim'] = int(args.pos_enc_dim)
+        
+    # BW
+    if args.num_eigs is not None:
+        net_params['num_eigs'] = args.num_eigs
+    if args.filter_grouping is not None:
+        net_params['filter_grouping'] = args.filter_grouping
+    if args.biases is not None:
+        net_params['biases'] = args.biases
+    if args.l1_reg is not None:
+        net_params['l1_reg'] = args.l1_reg
+    if args.l2_reg is not None:
+        net_params['l2_reg'] = args.l2_reg
+    if args.subtype is not None:
+        net_params['subtype'] = args.subtype
+    if args.normalized_laplacian is not None:
+        net_params['normalized_laplacian'] = args.normalized_laplacian
+    if args.post_normalized is not None:
+        net_params['post_normalized'] = args.post_normalized
+    if args.eigval_norm is not None:
+        net_params['eigval_norm'] = args.eigval_norm
+    if args.bias_mode is not None:
+        net_params['bias_mode'] = args.bias_mode
+    if args.gen_reg is not None:
+        net_params['gen_reg'] = args.gen_reg
+    if args.eigmod is not None:
+        net_params['eigmod'] = args.eigmod
+    if args.eigTrainFile is not None:
+        net_params['eigInFiles'] = {
+            'train': args.eigTrainFile,
+            'test': net_params.get('eigTestFile', None),
+            'val': net_params.get('eigValFile', None)
+        }
+    if args.eigTestFile is not None:
+        net_params['eigInFiles'] = {
+            'train': net_params.get('eigTrainFile', None),
+            'test': args.eigTestFile,
+            'val': net_params.get('eigValFile', None)
+        }
+    if args.eigValFile is not None:
+        net_params['eigInFiles'] = {
+            'train': net_params.get('eigTrainFile', None),
+            'test': net_params.get('eigTestFile', None),
+            'val': args.eigValFile
+        }
+    if args.fixMissingPhi1 is not None:
+        net_params['fixMissingPhi1'] = args.fixMissingPhi1
+    if args.extraOrtho is not None:
+        net_params['extraOrtho'] = args.extraOrtho
+    if args.k_aug is not None:
+        net_params['k_aug'] = args.k_aug
 
     # SBM
     net_params['in_dim'] = torch.unique(dataset.train[0][0].ndata['feat'], dim=0).size(

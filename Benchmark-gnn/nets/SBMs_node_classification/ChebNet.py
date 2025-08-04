@@ -8,10 +8,15 @@ import torch.nn.functional as F
 """
 from layers.Cheb_layer import ChebLayer
 from layers.mlp_readout_layer import MLPReadout
+from layers.Spec_layer import SpecLayer
+from layers.Eigval_layer import EigvalLayer
+from layers.Cheb_augmented_layer import ChebAugmentedLayer
 
+# BW
+from torch import norm as torch_norm
 
 class ChebNet(nn.Module):
-    def __init__(self, net_params):
+    def __init__(self, net_params, model='ChebNet'):
         super().__init__()
         in_dim_node = net_params['in_dim']  # node_dim (feat is an integer)
         hidden_dim = net_params['hidden_dim']
@@ -30,11 +35,22 @@ class ChebNet(nn.Module):
 
         self.embedding_h = nn.Embedding(in_dim_node, hidden_dim)  # node feat is an integer
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
-        self.layers = nn.ModuleList([ChebLayer(hidden_dim, hidden_dim, self.k, F.relu, dropout,
+        
+        # BW
+        if model == 'ChebNet':
+            layer = ChebLayer
+        elif model == 'SpecFilters':
+            layer = SpecLayer
+        elif model == 'EigvalFilters':
+            layer = EigvalLayer
+        elif model == 'ChebAugmentedFilters':
+            layer = ChebAugmentedLayer
+
+        self.layers = nn.ModuleList([layer(hidden_dim, hidden_dim, self.k, F.relu, dropout,
                                                self.graph_norm, self.batch_norm, self.residual) for _ in
                                      range(n_layers - 1)])
         self.layers.append(
-            ChebLayer(hidden_dim, out_dim, self.k, F.relu, dropout, self.graph_norm, self.batch_norm, self.residual))
+            layer(hidden_dim, out_dim, self.k, F.relu, dropout, self.graph_norm, self.batch_norm, self.residual))
         self.MLP_layer = MLPReadout(out_dim, n_classes)
 
     def forward(self, g, h, e):
@@ -64,5 +80,38 @@ class ChebNet(nn.Module):
         # weighted cross-entropy for unbalanced classes
         criterion = nn.CrossEntropyLoss(weight=weight)
         loss = criterion(pred, label)
+        
+        verbose = False
+        if verbose:
+            print('target loss', loss)
 
+        # BW: add regularization
+        if self.l1_reg > 0.0:
+            l1_loss = 0.0
+            for param in self.parameters():
+                l1_loss += torch_norm(param, p=1)
+            if verbose:
+                print('l1_loss', l1_loss)
+            loss += self.l1_reg * l1_loss
+
+        if self.l2_reg > 0.0:
+            l2_loss = 0.0
+            for param in self.parameters():
+                l2_loss += torch_norm(param, p=2)
+            if verbose:
+                print('l2_loss', l2_loss)
+            loss += self.l2_reg * l2_loss
+        
+        # BW: allow other regularization specific to the layer subtype
+        if self.gen_reg > 0.0:
+            reg_loss = 0.0
+            for layer in self.layers:
+                if hasattr(layer, 'general_regularization_loss'):
+                    reg_loss += layer.general_regularization_loss()
+            if verbose:
+                print('reg_loss', reg_loss)
+            loss += self.gen_reg * reg_loss
+
+        if verbose:
+            print()
         return loss

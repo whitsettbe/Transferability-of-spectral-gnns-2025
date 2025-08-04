@@ -20,7 +20,7 @@ def metis_import(out_dict, info_hash, eigInFiles,
                 edge_index = torch.cat((edge_index, torch.flip(edge_index, dims=(0,))), dim=1)
             
             # fetch the harmonics
-            signals = torch.tensor(eval(row.signals), dtype=torch.float32).to(device)
+            signals = torch.tensor(eval(row.signals), dtype=torch.float64).to(device)
             if fixMissingPhi1:
                 signals = torch.cat((torch.ones(signals[0:1].shape), signals))
                 
@@ -30,8 +30,10 @@ def metis_import(out_dict, info_hash, eigInFiles,
                     for j in range(i):
                         signals[i] -= torch.dot(signals[i], signals[j]) * signals[j]
                     norm = torch.norm(signals[i])
-                    if norm > 0:
+                    if norm > 1e-10:
                         signals[i] = signals[i] / norm
+                    else:
+                        signals[i] = torch.zeros_like(signals[i])
 
             # normalize the signals
             #if signals.pow(2).sum(1).min() == 0:
