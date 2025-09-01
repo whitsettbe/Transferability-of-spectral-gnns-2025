@@ -104,6 +104,10 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     print("Training Graphs: ", len(trainset))
     print("Validation Graphs: ", len(valset))
     print("Test Graphs: ", len(testset))
+    
+    # BW: Set default precision
+    if net_params.get('doublePrecision', False):
+        torch.set_default_dtype(torch.float64)
 
     # BW: Save global parameters required by SpecLayer
     SpecLayer.num_eigs = net_params.get('num_eigs', 15)  # Set the number of eigenvectors for SpecLayer
@@ -122,6 +126,9 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     EigvalLayer.eigInFiles = net_params.get('eigInFiles', dict())
     EigvalLayer.fixMissingPhi1 = net_params.get('fixMissingPhi1', True)
     EigvalLayer.extraOrtho = net_params.get('extraOrtho', False)
+    EigvalLayer.doublePrecision = net_params.get('doublePrecision', False)
+    EigvalLayer.eigval_hidden_dim = net_params.get('eigval_hidden_dim', 100)
+    EigvalLayer.eigval_num_hidden_layer = net_params.get('eigval_num_hidden_layer', 3)
 
     # BW: Save global parameters required by ChebAugmentedLayer
     ChebAugmentedLayer.num_eigs = net_params.get('num_eigs', 15)
@@ -206,7 +213,10 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
                 ckpt_dir = os.path.join(root_ckpt_dir, "RUN_")
                 if not os.path.exists(ckpt_dir):
                     os.makedirs(ckpt_dir)
-                torch.save(model.state_dict(), '{}.pkl'.format(ckpt_dir + "/epoch_" + str(epoch)))
+                try:
+                    torch.save(model.state_dict(), '{}.pkl'.format(ckpt_dir + "/epoch_" + str(epoch)))
+                except OSError as e:
+                    print(f"Error saving checkpoint #{epoch}: ", e)
 
                 files = glob.glob(ckpt_dir + '/*.pkl')
                 for file in files:
@@ -334,6 +344,12 @@ def main():
                         help='whether to do extra orthogonalization for imported eigenvectors') # BW
     parser.add_argument('--k_aug', type=int,
                         help='number of monomials for augmented filter') # BW
+    parser.add_argument('--doublePrecision', type=bool,
+                        help='whether to use double precision for computations') # BW
+    parser.add_argument('--eigval_hidden_dim', type=int,
+                        help='hidden dimension for eigenvalue-based filter') # BW
+    parser.add_argument('--eigval_num_hidden_layer', type=int,
+                        help='number of hidden layers for eigenvalue-based filter') # BW
     args = parser.parse_args()
     with open(args.config) as f:
         config = json.load(f)
@@ -469,6 +485,12 @@ def main():
         net_params['extraOrtho'] = args.extraOrtho
     if args.k_aug is not None:
         net_params['k_aug'] = args.k_aug
+    if args.doublePrecision is not None:
+        net_params['doublePrecision'] = args.doublePrecision
+    if args.eigval_hidden_dim is not None:
+        net_params['eigval_hidden_dim'] = args.eigval_hidden_dim
+    if args.eigval_num_hidden_layer is not None:
+        net_params['eigval_num_hidden_layer'] = args.eigval_num_hidden_layer
 
     # ZINC
     net_params['num_atom_type'] = dataset.num_atom_type

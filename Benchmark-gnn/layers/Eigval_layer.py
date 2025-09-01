@@ -23,7 +23,10 @@ class EigvalLayer(nn.Module):
     eigInFiles = None
     fixMissingPhi1 = True # whether to add a constant 1 as the first eigenvector (phi_1)
     extraOrtho = False # whether to do Graham-Schmidt orthogonalization on the eigenvectors
-    
+    doublePrecision = False # whether to use double precision for computations
+    eigval_hidden_dim = None # hidden dimension for eigenvalue-based filter
+    eigval_num_hidden_layer = None # number of hidden layers for eigenvalue-based filter
+
     @staticmethod
     def _graph_info_hash(num_nodes, edge_index):
         edge_tuple = tuple(sorted(zip(edge_index[0].tolist(), edge_index[1].tolist())))
@@ -55,13 +58,15 @@ class EigvalLayer(nn.Module):
                          device=g.device,
                          normalizedLaplacian=EigvalLayer.normalized_laplacian,
                          eigval_norm=EigvalLayer.eigval_norm,
-                         extraOrtho=EigvalLayer.extraOrtho)
+                         extraOrtho=EigvalLayer.extraOrtho,
+                         doublePrecision=EigvalLayer.doublePrecision)
             if graph_key in EigvalLayer.eig_dict: # ideally this should always be true
                 return EigvalLayer.eig_dict[graph_key]
         
         # Compute eigenvectors here using pytorch and store them
-        # NOTE: this uses L, not the normalized laplacian (maybe should be normalized?)
         adj = g.adjacency_matrix().to_dense()
+        if EigvalLayer.doublePrecision:
+            adj = adj.double()
         if EigvalLayer.normalized_laplacian:
             d_12 = torch.pow(adj.sum(dim=1), -0.5).view(1,-1)
             laplacian = torch.eye(adj.size(0)) - d_12 * adj * d_12.T
@@ -98,8 +103,9 @@ class EigvalLayer(nn.Module):
             r = torch_eigenvectors @ (torch_eigenvectors.T @ r)
             # Orthonormalize
             for i in range(r.size(1)):
-                for j in range(i):
-                    r[:, i] -= torch.dot(r[:, i], r[:, j]) * r[:, j]
+                if EigvalLayer.extraOrtho:
+                    for j in range(i):
+                        r[:, i] -= torch.dot(r[:, i], r[:, j]) * r[:, j]
                 norm = torch.norm(r[:, i])
                 if norm > 0:
                     r[:, i] = r[:, i] / norm
@@ -169,9 +175,9 @@ class EigvalLayer(nn.Module):
             # Rational function approximation of spectral filters
             # Each filter is a ratio of polynomials in eigenvalues
             numer_weights, bias = param_weights_and_biases(
-                (self._k, self.in_channels), (self.out_channels,))
+                (self._k, self.in_channels), (self.out_channels,), double=self.doublePrecision)
             denom_weights, _ = param_weights_and_biases(
-                (self._k, self.in_channels), (self.out_channels,))
+                (self._k, self.in_channels), (self.out_channels,), double=self.doublePrecision)
             self.numerator_weights = numer_weights
             self.denominator_weights = denom_weights
             self.biases.append(bias)
@@ -183,6 +189,19 @@ class EigvalLayer(nn.Module):
             self.weights.append(param_weights_and_biases(
                 (1,), (self.num_eigs, self.in_channels))[0])
             self.linear = nn.Linear(self.in_channels, self.out_channels)
+            
+        elif self.subtype == 'poly_mlp':
+            # Get coefficient for each component (all signals receive the same filtering)
+            self.filterer = nn.Sequential(*(
+                [nn.Linear(self._k - 1, self.eigval_hidden_dim),
+                nn.ReLU()] +
+                [nn.Linear(self.eigval_hidden_dim, self.eigval_hidden_dim),
+                 nn.ReLU()] * self.eigval_num_hidden_layer +
+                [nn.Linear(self.eigval_hidden_dim, 1)]
+            ))
+            
+            # Mix signals together
+            self.mixer = nn.Linear(self.in_channels, self.out_channels)
 
 
         # Pick an activation for the spectral construction
@@ -257,6 +276,24 @@ class EigvalLayer(nn.Module):
             h = self.linear(h) # mix features
             return h
         
+        elif self.subtype == 'poly_mlp':
+            
+            # Compute eigenvalue filters
+            eval_powers = [evals]
+            for k in range(2, self._k):
+                eval_powers.append(eval_powers[-1] * evals)
+            eval_stack = torch.stack(eval_powers, dim=0)  # (k, num_eigs)
+            s = self.filterer(eval_stack.T).squeeze(-1)  # (num_eigs,)
+
+            # Apply spectral coefficients
+            h = feat * d_12 if self.post_normalized else feat
+            h = torch.einsum('ne,ni->ei', evecs, h)
+            h = torch.einsum('e,ei->ei', s, h)
+            h = self.mixer(h) # cheaper to do before enlarging the domain
+            h = torch.einsum('ne,eo->no', evecs, h)
+            h = h * d_12 if self.post_normalized else h
+            return h
+            
 
     def forward(self, g, feature, lambda_max=None):
         # NOTE: what was lambda_max intended for in the older architecture??
