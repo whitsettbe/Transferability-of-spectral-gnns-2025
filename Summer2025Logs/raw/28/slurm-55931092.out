@@ -1,0 +1,25 @@
+I'm echoing to stdout
+I'm echoing to stderr
+My JobID is 55931092
+I have 4 CPUs on node r108u25n01
+Using backend: pytorch
+cuda not available
+[I] Loading dataset ZINC...
+train, test, val sizes : 10000 1000 1000
+[I] Finished loading.
+[I] Data load time: 5.2465s
+Dataset: ZINC,
+Model: EigvalFilters
+
+params={'seed': 41, 'epochs': 1000, 'batch_size': 128, 'init_lr': 0.001, 'lr_reduce_factor': 0.5, 'lr_schedule_patience': 5, 'min_lr': 1e-05, 'weight_decay': 0.0, 'print_epoch_interval': 5, 'max_time': 48}
+
+net_params={'L': 4, 'hidden_dim': 106, 'out_dim': 106, 'residual': True, 'readout': 'mean', 'k': 3, 'in_feat_dropout': 0.0, 'dropout': 0.0, 'graph_norm': True, 'batch_norm': True, 'self_loop': False, 'subtype': 'cheb02_vec', 'normalized_laplacian': True, 'eigval_norm': '', 'num_eigs': 40, 'bias_mode': 'spatial', 'eigval_hidden_dim': 10, 'eigval_num_hidden_layer': 3, 'device': device(type='cpu'), 'gpu_id': 0, 'batch_size': 128, 'biases': False, 'num_atom_type': 28, 'num_bond_type': 4, 'total_param': -1}
+
+
+Total Parameters: -1
+
+
+Training Graphs:  10000
+Validation Graphs:  1000
+Test Graphs:  1000
+  0%|          | 0/1000 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/1000 [00:00<?, ?it/s]slurmstepd: error: *** JOB 55931092 ON r108u25n01 CANCELLED AT 2025-07-18T00:00:41 ***

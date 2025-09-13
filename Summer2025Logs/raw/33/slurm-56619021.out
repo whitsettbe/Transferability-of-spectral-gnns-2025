@@ -1,0 +1,249 @@
+I'm echoing to stdout
+I'm echoing to stderr
+My JobID is 56619021
+I have 8 CPUs on node r108u25n01
+Using backend: pytorch
+cuda not available
+[I] Loading dataset ZINC...
+train, test, val sizes : 10000 1000 1000
+[I] Finished loading.
+[I] Data load time: 5.1132s
+Dataset: ZINC,
+Model: EigvalFilters
+
+params={'seed': 41, 'epochs': 1000, 'batch_size': 128, 'init_lr': 0.001, 'lr_reduce_factor': 0.5, 'lr_schedule_patience': 5, 'min_lr': 1e-05, 'weight_decay': 0.0, 'print_epoch_interval': 5, 'max_time': 48}
+
+net_params={'L': 4, 'hidden_dim': 106, 'out_dim': 106, 'residual': True, 'readout': 'mean', 'k': 4, 'in_feat_dropout': 0.0, 'dropout': 0.0, 'graph_norm': True, 'batch_norm': True, 'self_loop': False, 'subtype': 'rational_vec', 'normalized_laplacian': False, 'post_normalized': True, 'eigval_norm': 'scale(0,2)_all', 'num_eigs': 15, 'bias_mode': 'spatial', 'eigval_hidden_dim': 5, 'eigval_num_hidden_layer': 3, 'l1_reg': 0.0, 'l2_reg': 0.0, 'gen_reg': 1, 'eigmod': 'import_csv', 'eigInFiles': {'train': 'supp_data/molecules/zinc_train_rec_full.csv', 'test': 'supp_data/molecules/zinc_test_rec_full.csv', 'val': 'supp_data/molecules/zinc_val_rec_full.csv'}, 'fixMissingPhi1': False, 'extraOrtho': True, 'device': device(type='cpu'), 'gpu_id': 0, 'batch_size': 128, 'biases': False, 'num_atom_type': 28, 'num_bond_type': 4, 'total_param': -1}
+
+
+Total Parameters: -1
+
+
+Training Graphs:  10000
+Validation Graphs:  1000
+Test Graphs:  1000
+  0%|          | 0/1000 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/1000 [00:00<?, ?it/s]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 0:   0%|          | 0/1000 [04:27<?, ?it/s, lr=0.001, test_MAE=nan, time=267, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 0:   0%|          | 1/1000 [04:27<74:08:20, 267.17s/it, lr=0.001, test_MAE=nan, time=267, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 1:   0%|          | 1/1000 [04:27<74:08:20, 267.17s/it, lr=0.001, test_MAE=nan, time=267, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 1:   0%|          | 1/1000 [06:30<74:08:20, 267.17s/it, lr=0.001, test_MAE=nan, time=123, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 1:   0%|          | 2/1000 [06:30<62:06:22, 224.03s/it, lr=0.001, test_MAE=nan, time=123, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 2:   0%|          | 2/1000 [06:30<62:06:22, 224.03s/it, lr=0.001, test_MAE=nan, time=123, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 2:   0%|          | 2/1000 [08:34<62:06:22, 224.03s/it, lr=0.001, test_MAE=nan, time=123, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 2:   0%|          | 3/1000 [08:34<53:41:22, 193.86s/it, lr=0.001, test_MAE=nan, time=123, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 3:   0%|          | 3/1000 [08:34<53:41:22, 193.86s/it, lr=0.001, test_MAE=nan, time=123, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 3:   0%|          | 3/1000 [10:37<53:41:22, 193.86s/it, lr=0.001, test_MAE=nan, time=124, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 3:   0%|          | 4/1000 [10:37<47:48:20, 172.79s/it, lr=0.001, test_MAE=nan, time=124, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 4:   0%|          | 4/1000 [10:37<47:48:20, 172.79s/it, lr=0.001, test_MAE=nan, time=124, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 4:   0%|          | 4/1000 [12:42<47:48:20, 172.79s/it, lr=0.001, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 4:   0%|          | 5/1000 [12:42<43:46:09, 158.36s/it, lr=0.001, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 5:   0%|          | 5/1000 [12:42<43:46:09, 158.36s/it, lr=0.001, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 5:   0%|          | 5/1000 [14:47<43:46:09, 158.36s/it, lr=0.001, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch     6: reducing learning rate of group 0 to 5.0000e-04.
+Epoch 5:   1%|          | 6/1000 [14:47<40:57:37, 148.35s/it, lr=0.001, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 6:   1%|          | 6/1000 [14:47<40:57:37, 148.35s/it, lr=0.001, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 6:   1%|          | 6/1000 [16:52<40:57:37, 148.35s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 6:   1%|          | 7/1000 [16:52<39:00:36, 141.43s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 7:   1%|          | 7/1000 [16:52<39:00:36, 141.43s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 7:   1%|          | 7/1000 [18:57<39:00:36, 141.43s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 7:   1%|          | 8/1000 [18:57<37:36:34, 136.49s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 8:   1%|          | 8/1000 [18:57<37:36:34, 136.49s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 8:   1%|          | 8/1000 [21:02<37:36:34, 136.49s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 8:   1%|          | 9/1000 [21:02<36:37:16, 133.03s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 9:   1%|          | 9/1000 [21:02<36:37:16, 133.03s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 9:   1%|          | 9/1000 [23:07<36:37:16, 133.03s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 9:   1%|          | 10/1000 [23:07<35:56:10, 130.68s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 10:   1%|          | 10/1000 [23:07<35:56:10, 130.68s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 10:   1%|          | 10/1000 [25:12<35:56:10, 130.68s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 10:   1%|          | 11/1000 [25:12<35:26:06, 128.99s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 11:   1%|          | 11/1000 [25:12<35:26:06, 128.99s/it, lr=0.0005, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 11:   1%|          | 11/1000 [27:17<35:26:06, 128.99s/it, lr=0.0005, test_MAE=nan, time=124, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch    12: reducing learning rate of group 0 to 2.5000e-04.
+Epoch 11:   1%|          | 12/1000 [27:17<35:01:31, 127.62s/it, lr=0.0005, test_MAE=nan, time=124, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 12:   1%|          | 12/1000 [27:17<35:01:31, 127.62s/it, lr=0.0005, test_MAE=nan, time=124, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 12:   1%|          | 12/1000 [29:22<35:01:31, 127.62s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 12:   1%|▏         | 13/1000 [29:22<34:47:36, 126.91s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 13:   1%|▏         | 13/1000 [29:22<34:47:36, 126.91s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 13:   1%|▏         | 13/1000 [31:27<34:47:36, 126.91s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 13:   1%|▏         | 14/1000 [31:27<34:35:17, 126.29s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 14:   1%|▏         | 14/1000 [31:27<34:35:17, 126.29s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 14:   1%|▏         | 14/1000 [33:31<34:35:17, 126.29s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 14:   2%|▏         | 15/1000 [33:31<34:24:39, 125.77s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 15:   2%|▏         | 15/1000 [33:31<34:24:39, 125.77s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 15:   2%|▏         | 15/1000 [35:37<34:24:39, 125.77s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 15:   2%|▏         | 16/1000 [35:37<34:19:49, 125.60s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 16:   2%|▏         | 16/1000 [35:37<34:19:49, 125.60s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 16:   2%|▏         | 16/1000 [37:41<34:19:49, 125.60s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 16:   2%|▏         | 17/1000 [37:41<34:13:46, 125.36s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 17:   2%|▏         | 17/1000 [37:41<34:13:46, 125.36s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 17:   2%|▏         | 17/1000 [39:46<34:13:46, 125.36s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch    18: reducing learning rate of group 0 to 1.2500e-04.
+Epoch 17:   2%|▏         | 18/1000 [39:46<34:07:39, 125.11s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 18:   2%|▏         | 18/1000 [39:46<34:07:39, 125.11s/it, lr=0.00025, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 18:   2%|▏         | 18/1000 [41:51<34:07:39, 125.11s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 18:   2%|▏         | 19/1000 [41:51<34:05:10, 125.09s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 19:   2%|▏         | 19/1000 [41:51<34:05:10, 125.09s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 19:   2%|▏         | 19/1000 [43:56<34:05:10, 125.09s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 19:   2%|▏         | 20/1000 [43:56<34:01:58, 125.02s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 20:   2%|▏         | 20/1000 [43:56<34:01:58, 125.02s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 20:   2%|▏         | 20/1000 [46:01<34:01:58, 125.02s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 20:   2%|▏         | 21/1000 [46:01<33:58:43, 124.95s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 21:   2%|▏         | 21/1000 [46:01<33:58:43, 124.95s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 21:   2%|▏         | 21/1000 [48:06<33:58:43, 124.95s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 21:   2%|▏         | 22/1000 [48:06<33:57:04, 124.97s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 22:   2%|▏         | 22/1000 [48:06<33:57:04, 124.97s/it, lr=0.000125, test_MAE=nan, time=125, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 22:   2%|▏         | 22/1000 [50:08<33:57:04, 124.97s/it, lr=0.000125, test_MAE=nan, time=123, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 22:   2%|▏         | 23/1000 [50:08<33:44:36, 124.34s/it, lr=0.000125, test_MAE=nan, time=123, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 23:   2%|▏         | 23/1000 [50:08<33:44:36, 124.34s/it, lr=0.000125, test_MAE=nan, time=123, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 23:   2%|▏         | 23/1000 [52:09<33:44:36, 124.34s/it, lr=0.000125, test_MAE=nan, time=120, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch    24: reducing learning rate of group 0 to 6.2500e-05.
+Epoch 23:   2%|▏         | 24/1000 [52:09<33:22:03, 123.08s/it, lr=0.000125, test_MAE=nan, time=120, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 24:   2%|▏         | 24/1000 [52:09<33:22:03, 123.08s/it, lr=0.000125, test_MAE=nan, time=120, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 24:   2%|▏         | 24/1000 [54:08<33:22:03, 123.08s/it, lr=6.25e-5, test_MAE=nan, time=119, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan] Epoch 24:   2%|▎         | 25/1000 [54:08<33:00:58, 121.91s/it, lr=6.25e-5, test_MAE=nan, time=119, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 25:   2%|▎         | 25/1000 [54:08<33:00:58, 121.91s/it, lr=6.25e-5, test_MAE=nan, time=119, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 25:   2%|▎         | 25/1000 [56:06<33:00:58, 121.91s/it, lr=6.25e-5, test_MAE=nan, time=119, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 25:   3%|▎         | 26/1000 [56:06<32:43:41, 120.97s/it, lr=6.25e-5, test_MAE=nan, time=119, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 26:   3%|▎         | 26/1000 [56:06<32:43:41, 120.97s/it, lr=6.25e-5, test_MAE=nan, time=119, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 26:   3%|▎         | 26/1000 [58:05<32:43:41, 120.97s/it, lr=6.25e-5, test_MAE=nan, time=118, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 26:   3%|▎         | 27/1000 [58:05<32:29:36, 120.22s/it, lr=6.25e-5, test_MAE=nan, time=118, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 27:   3%|▎         | 27/1000 [58:05<32:29:36, 120.22s/it, lr=6.25e-5, test_MAE=nan, time=118, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 27:   3%|▎         | 27/1000 [1:00:03<32:29:36, 120.22s/it, lr=6.25e-5, test_MAE=nan, time=118, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 27:   3%|▎         | 28/1000 [1:00:03<32:16:39, 119.55s/it, lr=6.25e-5, test_MAE=nan, time=118, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 28:   3%|▎         | 28/1000 [1:00:03<32:16:39, 119.55s/it, lr=6.25e-5, test_MAE=nan, time=118, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 28:   3%|▎         | 28/1000 [1:02:00<32:16:39, 119.55s/it, lr=6.25e-5, test_MAE=nan, time=117, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 28:   3%|▎         | 29/1000 [1:02:00<32:03:30, 118.86s/it, lr=6.25e-5, test_MAE=nan, time=117, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 29:   3%|▎         | 29/1000 [1:02:00<32:03:30, 118.86s/it, lr=6.25e-5, test_MAE=nan, time=117, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 29:   3%|▎         | 29/1000 [1:03:58<32:03:30, 118.86s/it, lr=6.25e-5, test_MAE=nan, time=118, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch    30: reducing learning rate of group 0 to 3.1250e-05.
+Epoch 29:   3%|▎         | 30/1000 [1:03:58<31:56:00, 118.52s/it, lr=6.25e-5, test_MAE=nan, time=118, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 30:   3%|▎         | 30/1000 [1:03:58<31:56:00, 118.52s/it, lr=6.25e-5, test_MAE=nan, time=118, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 30:   3%|▎         | 30/1000 [1:05:55<31:56:00, 118.52s/it, lr=3.13e-5, test_MAE=nan, time=117, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 30:   3%|▎         | 31/1000 [1:05:55<31:44:57, 117.95s/it, lr=3.13e-5, test_MAE=nan, time=117, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 31:   3%|▎         | 31/1000 [1:05:55<31:44:57, 117.95s/it, lr=3.13e-5, test_MAE=nan, time=117, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 31:   3%|▎         | 31/1000 [1:07:51<31:44:57, 117.95s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 31:   3%|▎         | 32/1000 [1:07:51<31:33:29, 117.37s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 32:   3%|▎         | 32/1000 [1:07:51<31:33:29, 117.37s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 32:   3%|▎         | 32/1000 [1:09:47<31:33:29, 117.37s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 32:   3%|▎         | 33/1000 [1:09:47<31:25:08, 116.97s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 33:   3%|▎         | 33/1000 [1:09:47<31:25:08, 116.97s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 33:   3%|▎         | 33/1000 [1:11:42<31:25:08, 116.97s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 33:   3%|▎         | 34/1000 [1:11:42<31:17:08, 116.59s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 34:   3%|▎         | 34/1000 [1:11:42<31:17:08, 116.59s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 34:   3%|▎         | 34/1000 [1:13:38<31:17:08, 116.59s/it, lr=3.13e-5, test_MAE=nan, time=115, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 34:   4%|▎         | 35/1000 [1:13:38<31:09:14, 116.22s/it, lr=3.13e-5, test_MAE=nan, time=115, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 35:   4%|▎         | 35/1000 [1:13:38<31:09:14, 116.22s/it, lr=3.13e-5, test_MAE=nan, time=115, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 35:   4%|▎         | 35/1000 [1:15:34<31:09:14, 116.22s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch    36: reducing learning rate of group 0 to 1.5625e-05.
+Epoch 35:   4%|▎         | 36/1000 [1:15:34<31:06:07, 116.15s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 36:   4%|▎         | 36/1000 [1:15:34<31:06:07, 116.15s/it, lr=3.13e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 36:   4%|▎         | 36/1000 [1:17:29<31:06:07, 116.15s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 36:   4%|▎         | 37/1000 [1:17:29<31:02:18, 116.03s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 37:   4%|▎         | 37/1000 [1:17:29<31:02:18, 116.03s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 37:   4%|▎         | 37/1000 [1:19:25<31:02:18, 116.03s/it, lr=1.56e-5, test_MAE=nan, time=115, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 37:   4%|▍         | 38/1000 [1:19:25<30:57:34, 115.86s/it, lr=1.56e-5, test_MAE=nan, time=115, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 38:   4%|▍         | 38/1000 [1:19:25<30:57:34, 115.86s/it, lr=1.56e-5, test_MAE=nan, time=115, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 38:   4%|▍         | 38/1000 [1:21:21<30:57:34, 115.86s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 38:   4%|▍         | 39/1000 [1:21:21<30:55:54, 115.87s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 39:   4%|▍         | 39/1000 [1:21:21<30:55:54, 115.87s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 39:   4%|▍         | 39/1000 [1:23:16<30:55:54, 115.87s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 39:   4%|▍         | 40/1000 [1:23:16<30:53:11, 115.82s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 40:   4%|▍         | 40/1000 [1:23:16<30:53:11, 115.82s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 40:   4%|▍         | 40/1000 [1:25:12<30:53:11, 115.82s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 40:   4%|▍         | 41/1000 [1:25:12<30:50:34, 115.78s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch 41:   4%|▍         | 41/1000 [1:25:12<30:50:34, 115.78s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Warning: NaN or Inf found in input tensor.
+Epoch 41:   4%|▍         | 41/1000 [1:27:08<30:50:34, 115.78s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]Epoch    42: reducing learning rate of group 0 to 7.8125e-06.
+
+!! LR EQUAL TO MIN LR SET.
+Epoch 41:   4%|▍         | 41/1000 [1:27:08<33:58:16, 127.53s/it, lr=1.56e-5, test_MAE=nan, time=116, train_MAE=nan, train_loss=nan, val_MAE=nan, val_loss=nan]
+Test MAE: nan
+Train MAE: nan
+Convergence Time (Epochs): 41.0000
+TOTAL TIME TAKEN: 5286.0581s
+AVG TIME PER EPOCH: 124.4724s

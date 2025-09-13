@@ -1,0 +1,71 @@
+I'm echoing to stdout
+I'm echoing to stderr
+My JobID is 55683220
+I have 4 CPUs on node r104u22n01
+Using backend: pytorch
+WARNING:root:The OGB package is out of date. Your version is 1.2.3, while the latest version is 1.3.6.
+/home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/torch/cuda/__init__.py:125: UserWarning: 
+NVIDIA RTX A5000 with CUDA capability sm_86 is not compatible with the current PyTorch installation.
+The current PyTorch install supports CUDA capabilities sm_37 sm_50 sm_60 sm_61 sm_70 sm_75 compute_37.
+If you want to use the NVIDIA RTX A5000 GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/
+
+  warnings.warn(incompatible_device_warn.format(device_name, capability, " ".join(arch_list), device_name))
+cuda available with GPU: NVIDIA RTX A5000
+[I] Loading dataset ZINC...
+train, test, val sizes : 10000 1000 1000
+[I] Finished loading.
+[I] Data load time: 3.9197s
+MODEL DETAILS:
+
+MODEL/Total parameters: MLP 108975
+Training Graphs:  10000
+Validation Graphs:  1000
+Test Graphs:  1000
+  0%|          | 0/1000 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/1000 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/1000 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/vast/palmer/pi/krishnaswamy_smita/bsw38/GraphML/benchmarking-gnns/train/train_molecules_graph_regression.py", line 27, in train_epoch_sparse
+    batch_pos_enc = batch_graphs.ndata['pos_enc'].to(device)
+  File "/home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/view.py", line 66, in __getitem__
+    return self._graph._get_n_repr(self._ntid, self._nodes)[key]
+  File "/home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/frame.py", line 386, in __getitem__
+    return self._columns[name].data
+KeyError: 'pos_enc'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main_molecules_graph_regression.py", line 439, in <module>
+    main()    
+  File "main_molecules_graph_regression.py", line 430, in main
+    train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs)
+  File "main_molecules_graph_regression.py", line 176, in train_val_pipeline
+    epoch_train_loss, epoch_train_mae, optimizer = train_epoch(model, optimizer, device, train_loader, epoch)
+  File "/vast/palmer/pi/krishnaswamy_smita/bsw38/GraphML/benchmarking-gnns/train/train_molecules_graph_regression.py", line 33, in train_epoch_sparse
+    batch_scores = model.forward(batch_graphs, batch_x, batch_e)
+  File "/vast/palmer/pi/krishnaswamy_smita/bsw38/GraphML/benchmarking-gnns/nets/molecules_graph_regression/mlp_net.py", line 111, in forward
+    h = self._to_spectral(g, h)
+  File "/vast/palmer/pi/krishnaswamy_smita/bsw38/GraphML/benchmarking-gnns/nets/molecules_graph_regression/mlp_net.py", line 86, in _to_spectral
+    induced = g.subgraph(range(s, s+n))
+  File "/home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/utils/internal.py", line 898, in _fn
+    return func(*args, **kwargs)
+  File "/home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/subgraph.py", line 138, in node_subgraph
+    sgi = graph._graph.node_subgraph(induced_nodes)
+  File "/home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/heterograph_index.py", line 803, in node_subgraph
+    return _CAPI_DGLHeteroVertexSubgraph(self, vids)
+  File "dgl/_ffi/_cython/./function.pxi", line 287, in dgl._ffi._cy3.core.FunctionBase.__call__
+  File "dgl/_ffi/_cython/./function.pxi", line 222, in dgl._ffi._cy3.core.FuncCall
+  File "dgl/_ffi/_cython/./function.pxi", line 211, in dgl._ffi._cy3.core.FuncCall3
+  File "dgl/_ffi/_cython/./base.pxi", line 155, in dgl._ffi._cy3.core.CALL
+dgl._ffi.base.DGLError: [16:59:17] /opt/dgl/src/array/cuda/coo_sort.cu:160: Check failed: e == cudaSuccess || e == cudaErrorCudartUnloading: CUDA kernel launch error: no kernel image is available for execution on the device
+Stack trace:
+  [bt] (0) /home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/libdgl.so(dmlc::LogMessageFatal::~LogMessageFatal()+0x4f) [0x1474a4b17a4f]
+  [bt] (1) /home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/libdgl.so(std::pair<bool, bool> dgl::aten::impl::COOIsSorted<(DLDeviceType)2, long>(dgl::aten::COOMatrix)+0x252) [0x1474a535fb03]
+  [bt] (2) /home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/libdgl.so(dgl::aten::COOIsSorted(dgl::aten::COOMatrix)+0x1e3) [0x1474a4afc653]
+  [bt] (3) /home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/libdgl.so(dgl::aten::CSRMatrix dgl::aten::impl::COOToCSR<(DLDeviceType)2, long>(dgl::aten::COOMatrix)+0xb4) [0x1474a535d1cf]
+  [bt] (4) /home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/libdgl.so(dgl::aten::COOToCSR(dgl::aten::COOMatrix)+0x3f3) [0x1474a4afb313]
+  [bt] (5) /home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/libdgl.so(dgl::UnitGraph::GetOutCSR(bool) const+0x2ee) [0x1474a52dff7e]
+  [bt] (6) /home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/libdgl.so(dgl::UnitGraph::GetFormat(dgl::SparseFormat) const+0x7d) [0x1474a52e07ed]
+  [bt] (7) /home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/libdgl.so(dgl::UnitGraph::VertexSubgraph(std::vector<dgl::runtime::NDArray, std::allocator<dgl::runtime::NDArray> > const&) const+0x47) [0x1474a52e2477]
+  [bt] (8) /home/bsw38/.conda/envs/benchmark_gnn/lib/python3.7/site-packages/dgl/libdgl.so(dgl::HeteroGraph::VertexSubgraph(std::vector<dgl::runtime::NDArray, std::allocator<dgl::runtime::NDArray> > const&) const+0x41b) [0x1474a520b1eb]
+
+

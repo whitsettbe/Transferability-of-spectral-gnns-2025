@@ -1,0 +1,44 @@
+I'm echoing to stdout
+I'm echoing to stderr
+My JobID is 54610944
+I have 4 CPUs on node r108u25n01
+Importing...
+/vast/palmer/home.mccleary/bsw38/GraphML/.conda/lib/python3.11/site-packages/outdated/__init__.py:36: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version
+Imports complete
+Hello, world!
+41127
+Smallest graph in molhiv dataset has 2 nodes
+torch.Size([19, 9])
+0.00457213306799531 tensor([[ 0.0046, -0.0102]], device='cuda:0', grad_fn=<SliceBackward0>)
+Epoch 001 | New best val loss: 4.8191 (saved)
+Epoch 001 | Loss: 11.8144 | Val Loss: 4.8191 | Metric: 0.2023
+Epoch 002 | New best val loss: 3.0154 (saved)
+Epoch 002 | Loss: 3.6085 | Val Loss: 3.0154 | Metric: 0.1294
+Epoch 003 | New best val loss: 2.5015 (saved)
+Epoch 003 | Loss: 3.0969 | Val Loss: 2.5015 | Metric: 0.1051
+Epoch 004 | New best val loss: 1.8315 (saved)
+Epoch 005 | New best val loss: 1.4521 (saved)
+Epoch 006 | New best val loss: 1.3176 (saved)
+Epoch 009 | New best val loss: 0.8145 (saved)
+Epoch 010 | Loss: 1.8607 | Val Loss: 1.7215 | Metric: 0.0805
+Epoch 020 | Loss: 1.4215 | Val Loss: 1.3980 | Metric: 0.0710
+Epoch 024 | New best val loss: 0.8028 (saved)
+Epoch 027 | New best val loss: 0.6545 (saved)
+Epoch 030 | Loss: 1.0837 | Val Loss: 0.8253 | Metric: 0.0681
+Epoch 036 | New best val loss: 0.6338 (saved)
+Epoch 040 | Loss: 0.8892 | Val Loss: 0.8224 | Metric: 0.0603
+Epoch 044 | New best val loss: 0.6208 (saved)
+Epoch 046 | New best val loss: 0.6096 (saved)
+Epoch 049 | New best val loss: 0.4379 (saved)
+Epoch 050 | Loss: 0.6863 | Val Loss: 0.5783 | Metric: 0.0593
+Epoch 058 | New best val loss: 0.4376 (saved)
+Epoch 060 | New best val loss: 0.3738 (saved)
+Epoch 060 | Loss: 0.5459 | Val Loss: 0.3738 | Metric: 0.0601
+Epoch 070 | Loss: 0.4967 | Val Loss: 0.4396 | Metric: 0.0579
+Epoch 079 | New best val loss: 0.3625 (saved)
+Epoch 080 | Loss: 0.4167 | Val Loss: 0.4739 | Metric: 0.0569
+Epoch 089 | New best val loss: 0.3615 (saved)
+Epoch 090 | Loss: 0.3942 | Val Loss: 0.4465 | Metric: 0.0610
+Epoch 091 | New best val loss: 0.3456 (saved)
+slurmstepd: error: *** JOB 54610944 ON r108u25n01 CANCELLED AT 2025-06-19T16:17:01 DUE TO TIME LIMIT ***

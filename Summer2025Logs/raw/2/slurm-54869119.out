@@ -1,0 +1,30 @@
+I'm echoing to stdout
+I'm echoing to stderr
+My JobID is 54869119
+I have 2 CPUs on node r108u25n01
+Importing...
+/vast/palmer/home.mccleary/bsw38/GraphML/.conda/lib/python3.11/site-packages/outdated/__init__.py:36: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version
+Imports complete
+Hello, world!
+41127
+Smallest graph in molhiv dataset has 2 nodes
+torch.Size([19, 9])
+0.09811743348836899 tensor([[-9.8117e-02,  2.3941e-01],
+        [ 5.4922e-02,  2.5677e-01],
+        [-6.8912e-01,  1.9901e-01],
+        [ 1.0131e-02,  1.0177e-01],
+        [-2.1862e+02,  1.5794e+02]], device='cuda:0', grad_fn=<SliceBackward0>)
+Epoch 001 | New best val loss: 10.1151 (saved)
+Epoch 001 | Loss: 19.0940 | Val Loss: 10.1151 | Train Metric: 0.4060 | Val Metric: 0.4328
+Epoch 002 | New best val loss: 3.5479 (saved)
+Epoch 002 | Loss: 7.4511 | Val Loss: 3.5479 | Train Metric: 0.4165 | Val Metric: 0.4403
+Epoch 003 | Loss: 4.8059 | Val Loss: 8.5525 | Train Metric: 0.4418 | Val Metric: 0.4546
+Epoch 004 | New best val loss: 1.5715 (saved)
+Epoch 006 | New best val loss: 1.2519 (saved)
+Epoch 007 | New best val loss: 0.8010 (saved)
+Epoch 008 | New best val loss: 0.5749 (saved)
+Epoch 010 | New best val loss: 0.4849 (saved)
+Epoch 010 | Loss: 0.7534 | Val Loss: 0.4849 | Train Metric: 0.4227 | Val Metric: 0.4025
+Epoch 020 | Loss: 0.3705 | Val Loss: 0.7417 | Train Metric: 0.4027 | Val Metric: 0.3958
+slurmstepd: error: *** JOB 54869119 ON r108u25n01 CANCELLED AT 2025-06-23T21:08:21 ***

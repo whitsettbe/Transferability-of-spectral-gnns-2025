@@ -1,0 +1,19 @@
+I'm echoing to stdout
+I'm echoing to stderr
+My JobID is 54873221
+I have 2 CPUs on node r108u25n01
+Importing...
+/vast/palmer/home.mccleary/bsw38/GraphML/.conda/lib/python3.11/site-packages/outdated/__init__.py:36: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version
+Imports complete
+Hello, world!
+41127
+Smallest graph in molhiv dataset has 2 nodes
+torch.Size([19, 9])
+Traceback (most recent call last):
+  File "/vast/palmer/home.mccleary/bsw38/GraphML/./gcn_testing/main.py", line 201, in <module>
+    main()
+  File "/vast/palmer/home.mccleary/bsw38/GraphML/./gcn_testing/main.py", line 178, in main
+    loss = train(model, train_loader, optimizer, device, newGraphs=True, updatePeriod=10, rotate=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: train() got an unexpected keyword argument 'rotate'

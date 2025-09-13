@@ -1,0 +1,45 @@
+I'm echoing to stdout
+I'm echoing to stderr
+My JobID is 57723564
+I have 8 CPUs on node r108u25n01
+Using backend: pytorch
+cuda not available
+[I] Loading dataset ZINC...
+train, test, val sizes : 10000 1000 1000
+[I] Finished loading.
+[I] Data load time: 5.0210s
+Dataset: ZINC,
+Model: EigvalFilters
+
+params={'seed': 41, 'epochs': 1000, 'batch_size': 128, 'init_lr': 0.001, 'lr_reduce_factor': 0.5, 'lr_schedule_patience': 5, 'min_lr': 1e-05, 'weight_decay': 0.0, 'print_epoch_interval': 5, 'max_time': 48}
+
+net_params={'L': 4, 'hidden_dim': 106, 'out_dim': 106, 'residual': True, 'readout': 'mean', 'k': 2, 'in_feat_dropout': 0.0, 'dropout': 0.0, 'graph_norm': True, 'batch_norm': True, 'self_loop': False, 'subtype': 'cheb02_vec', 'normalized_laplacian': False, 'post_normalized': True, 'eigval_norm': 'scale(0,2)_all', 'num_eigs': 16, 'bias_mode': 'spatial', 'eigval_hidden_dim': 5, 'eigval_num_hidden_layer': 3, 'l1_reg': 0.0, 'l2_reg': 0.0, 'gen_reg': 0.0, 'eigmod': 'rand_basis', 'eigInFiles': {'train': 'supp_data/molecules/aug07/zinc_train_rec.csv', 'test': 'supp_data/molecules/aug07/zinc_test_rec.csv', 'val': 'supp_data/molecules/aug07/zinc_val_rec.csv'}, 'fixMissingPhi1': False, 'extraOrtho': False, 'doublePrecision': True, 'device': device(type='cpu'), 'gpu_id': 0, 'batch_size': 128, 'biases': False, 'num_atom_type': 28, 'num_bond_type': 4, 'total_param': -1}
+
+
+Total Parameters: -1
+
+
+Training Graphs:  10000
+Validation Graphs:  1000
+Test Graphs:  1000
+  0%|          | 0/1000 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/1000 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/1000 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "main_molecules_graph_regression.py", line 509, in <module>
+    main()
+  File "main_molecules_graph_regression.py", line 506, in main
+    train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs)
+  File "main_molecules_graph_regression.py", line 186, in train_val_pipeline
+    epoch)
+  File "/vast/palmer/pi/krishnaswamy_smita/bsw38/GraphML/Transferability-of-spectral-gnns-2025/Benchmark-gnn/train/train_molecules_graph_regression.py", line 23, in train_epoch_sparse
+    batch_scores = model.forward(batch_graphs, batch_x, batch_e)
+  File "/vast/palmer/pi/krishnaswamy_smita/bsw38/GraphML/Transferability-of-spectral-gnns-2025/Benchmark-gnn/nets/molecules_graph_regression/ChebNet.py", line 67, in forward
+    h = conv(g, h, lambda_max)
+  File "/home/bsw38/.conda/envs/benchmark_gnn_2/lib/python3.7/site-packages/torch/nn/modules/module.py", line 722, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/vast/palmer/pi/krishnaswamy_smita/bsw38/GraphML/Transferability-of-spectral-gnns-2025/Benchmark-gnn/layers/Eigval_layer.py", line 275, in forward
+    h = self.process_single_graph(graph, feat)
+  File "/vast/palmer/pi/krishnaswamy_smita/bsw38/GraphML/Transferability-of-spectral-gnns-2025/Benchmark-gnn/layers/Eigval_layer.py", line 205, in process_single_graph
+    evals,evecs = self._get_eigenvectors(graph)
+  File "/vast/palmer/pi/krishnaswamy_smita/bsw38/GraphML/Transferability-of-spectral-gnns-2025/Benchmark-gnn/layers/Eigval_layer.py", line 108, in _get_eigenvectors
+    if norm > 0:
+UnboundLocalError: local variable 'norm' referenced before assignment

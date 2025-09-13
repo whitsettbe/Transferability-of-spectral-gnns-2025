@@ -1,0 +1,38 @@
+I'm echoing to stdout
+I'm echoing to stderr
+My JobID is 54818872
+I have 2 CPUs on node r108u25n01
+Importing...
+/vast/palmer/home.mccleary/bsw38/GraphML/.conda/lib/python3.11/site-packages/outdated/__init__.py:36: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version
+Imports complete
+Hello, world!
+41127
+Smallest graph in molhiv dataset has 2 nodes
+torch.Size([19, 9])
+0.09811867773532867 tensor([[-0.0981,  0.2394]], device='cuda:0', grad_fn=<SliceBackward0>)
+Epoch 001 | New best val loss: 10.0248 (saved)
+Epoch 001 | Loss: 1.9565 | Val Loss: 10.0248 | Train Metric: 0.4075 | Val Metric: 0.4097
+Epoch 002 | New best val loss: 4.6182 (saved)
+Epoch 002 | Loss: 0.5047 | Val Loss: 4.6182 | Train Metric: 0.4162 | Val Metric: 0.4370
+Epoch 003 | Loss: 0.4364 | Val Loss: 20.9470 | Train Metric: 0.4280 | Val Metric: 0.4558
+Epoch 004 | New best val loss: 3.6481 (saved)
+Epoch 008 | New best val loss: 1.7180 (saved)
+Epoch 009 | New best val loss: 1.4431 (saved)
+Epoch 010 | New best val loss: 1.1150 (saved)
+Epoch 010 | Loss: 0.1589 | Val Loss: 1.1150 | Train Metric: 0.3957 | Val Metric: 0.3852
+Epoch 016 | New best val loss: 0.8383 (saved)
+Epoch 020 | Loss: 0.0671 | Val Loss: 0.9022 | Train Metric: 0.3628 | Val Metric: 0.3512
+Epoch 021 | New best val loss: 0.6529 (saved)
+Epoch 022 | New best val loss: 0.5834 (saved)
+Epoch 023 | New best val loss: 0.5662 (saved)
+Epoch 026 | New best val loss: 0.4858 (saved)
+Epoch 030 | Loss: 0.0363 | Val Loss: 0.6117 | Train Metric: 0.3728 | Val Metric: 0.3511
+Epoch 040 | Loss: 0.0272 | Val Loss: 0.5272 | Train Metric: 0.3563 | Val Metric: 0.3528
+Epoch 043 | New best val loss: 0.4228 (saved)
+Epoch 050 | Loss: 0.0238 | Val Loss: 0.4888 | Train Metric: 0.3534 | Val Metric: 0.3626
+Epoch 060 | Loss: 0.0481 | Val Loss: 0.5789 | Train Metric: 0.3571 | Val Metric: 0.3550
+Epoch 070 | Loss: 0.0308 | Val Loss: 0.5583 | Train Metric: 0.3540 | Val Metric: 0.3621
+Epoch 080 | Loss: 0.0252 | Val Loss: 0.5146 | Train Metric: 0.3525 | Val Metric: 0.3477
+Epoch 090 | Loss: 0.0259 | Val Loss: 0.5803 | Train Metric: 0.3522 | Val Metric: 0.3532
+Epoch 100 | Loss: 0.0238 | Val Loss: 0.5568 | Train Metric: 0.3412 | Val Metric: 0.3519

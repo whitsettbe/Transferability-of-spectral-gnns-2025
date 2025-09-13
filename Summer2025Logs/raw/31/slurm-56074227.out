@@ -1,0 +1,25 @@
+I'm echoing to stdout
+I'm echoing to stderr
+My JobID is 56074227
+I have 8 CPUs on node r108u25n01
+Using backend: pytorch
+cuda not available
+[I] Loading dataset ZINC...
+train, test, val sizes : 10000 1000 1000
+[I] Finished loading.
+[I] Data load time: 5.2279s
+Dataset: ZINC,
+Model: EigvalFilters
+
+params={'seed': 41, 'epochs': 1000, 'batch_size': 128, 'init_lr': 0.001, 'lr_reduce_factor': 0.5, 'lr_schedule_patience': 5, 'min_lr': 1e-05, 'weight_decay': 0.0, 'print_epoch_interval': 5, 'max_time': 48}
+
+net_params={'L': 4, 'hidden_dim': 106, 'out_dim': 106, 'residual': True, 'readout': 'mean', 'k': 4, 'in_feat_dropout': 0.0, 'dropout': 0.0, 'graph_norm': True, 'batch_norm': True, 'self_loop': False, 'subtype': 'sparse_vec', 'normalized_laplacian': False, 'post_normalized': True, 'eigval_norm': 'scale(0,2)_all', 'num_eigs': 15, 'bias_mode': 'spatial', 'eigval_hidden_dim': 5, 'eigval_num_hidden_layer': 3, 'l1_reg': 1e-06, 'l2_reg': 0.0001, 'gen_reg': 0.0, 'device': device(type='cpu'), 'gpu_id': 0, 'batch_size': 128, 'biases': False, 'num_atom_type': 28, 'num_bond_type': 4, 'total_param': -1}
+
+
+Total Parameters: -1
+
+
+Training Graphs:  10000
+Validation Graphs:  1000
+Test Graphs:  1000
+  0%|          | 0/1000 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/1000 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/1000 [02:17<?, ?it/s, lr=0.001, test_MAE=0.697, time=137, train_MAE=0.912, train_loss=0.952, val_MAE=0.651, val_loss=0.691]Epoch 0:   0%|          | 1/1000 [02:17<38:04:16, 137.19s/it, lr=0.001, test_MAE=0.697, time=137, train_MAE=0.912, train_loss=0.952, val_MAE=0.651, val_loss=0.691]Epoch 1:   0%|          | 1/1000 [02:17<38:04:16, 137.19s/it, lr=0.001, test_MAE=0.697, time=137, train_MAE=0.912, train_loss=0.952, val_MAE=0.651, val_loss=0.691]Epoch 1:   0%|          | 1/1000 [04:29<38:04:16, 137.19s/it, lr=0.001, test_MAE=0.671, time=133, train_MAE=0.663, train_loss=0.703, val_MAE=0.632, val_loss=0.673]Epoch 1:   0%|          | 2/1000 [04:30<37:40:06, 135.88s/it, lr=0.001, test_MAE=0.671, time=133, train_MAE=0.663, train_loss=0.703, val_MAE=0.632, val_loss=0.673]Epoch 2:   0%|          | 2/1000 [04:30<37:40:06, 135.88s/it, lr=0.001, test_MAE=0.671, time=133, train_MAE=0.663, train_loss=0.703, val_MAE=0.632, val_loss=0.673]Epoch 2:   0%|          | 2/1000 [06:44<37:40:06, 135.88s/it, lr=0.001, test_MAE=0.652, time=134, train_MAE=0.635, train_loss=0.675, val_MAE=0.607, val_loss=0.647]Epoch 2:   0%|          | 3/1000 [06:44<37:29:18, 135.36s/it, lr=0.001, test_MAE=0.652, time=134, train_MAE=0.635, train_loss=0.675, val_MAE=0.607, val_loss=0.647]Epoch 3:   0%|          | 3/1000 [06:44<37:29:18, 135.36s/it, lr=0.001, test_MAE=0.652, time=134, train_MAE=0.635, train_loss=0.675, val_MAE=0.607, val_loss=0.647]Epoch 3:   0%|          | 3/1000 [08:57<37:29:18, 135.36s/it, lr=0.001, test_MAE=0.69, time=134, train_MAE=0.627, train_loss=0.668, val_MAE=0.649, val_loss=0.689] Epoch 3:   0%|          | 4/1000 [08:57<37:18:42, 134.86s/it, lr=0.001, test_MAE=0.69, time=134, train_MAE=0.627, train_loss=0.668, val_MAE=0.649, val_loss=0.689]Epoch 4:   0%|          | 4/1000 [08:57<37:18:42, 134.86s/it, lr=0.001, test_MAE=0.69, time=134, train_MAE=0.627, train_loss=0.668, val_MAE=0.649, val_loss=0.689]Epoch 4:   0%|          | 4/1000 [11:09<37:18:42, 134.86s/it, lr=0.001, test_MAE=0.603, time=132, train_MAE=0.594, train_loss=0.634, val_MAE=0.562, val_loss=0.602]Epoch 4:   0%|          | 5/1000 [11:09<37:02:02, 133.99s/it, lr=0.001, test_MAE=0.603, time=132, train_MAE=0.594, train_loss=0.634, val_MAE=0.562, val_loss=0.602]Epoch 5:   0%|          | 5/1000 [11:09<37:02:02, 133.99s/it, lr=0.001, test_MAE=0.603, time=132, train_MAE=0.594, train_loss=0.634, val_MAE=0.562, val_loss=0.602]slurmstepd: error: *** JOB 56074227 ON r108u25n01 CANCELLED AT 2025-07-20T11:15:49 ***
