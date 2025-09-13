@@ -108,6 +108,10 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     print("Test Graphs: ", len(testset))
     print("Number of Classes: ", net_params['n_classes'])
     
+    # BW: Set default precision
+    if net_params.get('doublePrecision', False):
+        torch.set_default_dtype(torch.float64)
+
     # BW: Save global parameters required by SpecLayer
     SpecLayer.num_eigs = net_params.get('num_eigs', 15)  # Set the number of eigenvectors for SpecLayer
     SpecLayer.hidden_dim = net_params.get('hidden_dim', 150)
@@ -125,6 +129,9 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     EigvalLayer.eigInFiles = net_params.get('eigInFiles', dict())
     EigvalLayer.fixMissingPhi1 = net_params.get('fixMissingPhi1', True)
     EigvalLayer.extraOrtho = net_params.get('extraOrtho', False)
+    EigvalLayer.doublePrecision = net_params.get('doublePrecision', False)
+    EigvalLayer.eigval_hidden_dim = net_params.get('eigval_hidden_dim', 100)
+    EigvalLayer.eigval_num_hidden_layer = net_params.get('eigval_num_hidden_layer', 3)
 
     # BW: Save global parameters required by ChebAugmentedLayer
     ChebAugmentedLayer.num_eigs = net_params.get('num_eigs', 15)
@@ -300,6 +307,7 @@ def main():
                         help='filters parallel-wise process "features" (default), "eigen", or "none" (fully-connected mode)') # BW
     parser.add_argument('--with_biases', dest='biases', action='store_true') # BW
     parser.add_argument('--no_biases', dest='biases', action='store_false') # BW
+    #parser.set_defaults(biases=True) # BW
     parser.add_argument('--l1_reg', type=float,
                         help='weight of L1 regularization in the loss') # BW
     parser.add_argument('--l2_reg', type=float,
@@ -330,6 +338,12 @@ def main():
                         help='whether to do extra orthogonalization for imported eigenvectors') # BW
     parser.add_argument('--k_aug', type=int,
                         help='number of monomials for augmented filter') # BW
+    parser.add_argument('--doublePrecision', type=bool,
+                        help='whether to use double precision for computations') # BW
+    parser.add_argument('--eigval_hidden_dim', type=int,
+                        help='hidden dimension for eigenvalue-based filter') # BW
+    parser.add_argument('--eigval_num_hidden_layer', type=int,
+                        help='number of hidden layers for eigenvalue-based filter') # BW
     args = parser.parse_args()
     with open(args.config) as f:
         config = json.load(f)
@@ -423,7 +437,6 @@ def main():
     if args.pos_enc_dim is not None:
         net_params['pos_enc_dim'] = int(args.pos_enc_dim)
         
-    # BW
     if args.num_eigs is not None:
         net_params['num_eigs'] = args.num_eigs
     if args.filter_grouping is not None:
@@ -472,6 +485,12 @@ def main():
         net_params['extraOrtho'] = args.extraOrtho
     if args.k_aug is not None:
         net_params['k_aug'] = args.k_aug
+    if args.doublePrecision is not None:
+        net_params['doublePrecision'] = args.doublePrecision
+    if args.eigval_hidden_dim is not None:
+        net_params['eigval_hidden_dim'] = args.eigval_hidden_dim
+    if args.eigval_num_hidden_layer is not None:
+        net_params['eigval_num_hidden_layer'] = args.eigval_num_hidden_layer
 
     # SBM
     net_params['in_dim'] = torch.unique(dataset.train[0][0].ndata['feat'], dim=0).size(

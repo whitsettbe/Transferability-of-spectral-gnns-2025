@@ -19,7 +19,7 @@
     "max_time": 48
   },
   "net_params": {
-    "L": 4,
+    "L": 16,
     "hidden_dim": 106,
     "out_dim": 106,
     "residual": true,
@@ -30,14 +30,14 @@
     "graph_norm": true,
     "batch_norm": true,
     "self_loop": false,
-    "subtype": "poly_mlp",
+    "subtype": "cheb02_vec",
     "normalized_laplacian": false,
     "post_normalized": true,
     "eigval_norm": "scale(0,2)_sub",
     "num_eigs": 16,
     "bias_mode": "spatial",
-    "l1_reg": 0.0,
-    "l2_reg": 0.0,
+    "l1_reg": 1e-4,
+    "l2_reg": 0.5e-2,
     "gen_reg": 0.0,
     "eigmod": "import_csv",
     "eigInFiles": {

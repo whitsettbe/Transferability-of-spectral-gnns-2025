@@ -22,7 +22,7 @@
     "L": 4,
     "hidden_dim": 70,
     "out_dim": 70,
-    "residual": false,
+    "residual": true,
     "k": 5,
     "readout": "mean",
     "in_feat_dropout": 0.0,
@@ -31,9 +31,24 @@
     "batch_norm": true,
     "self_loop": false,
     "subtype": "cheb02_vec",
-    "normalized_laplacian": true,
-    "post_normalized": false,
-    "eigval_norm": "",
-    "num_eigs": 190
+    "normalized_laplacian": false,
+    "post_normalized": true,
+    "eigval_norm": "scale(0,2)_sub",
+    "num_eigs": 16,
+    "bias_mode": "spatial",
+    "l1_reg": 0.0,
+    "l2_reg": 0.0,
+    "gen_reg": 0.0,
+    "eigmod": "import_csv",
+    "eigInFiles": {
+            "train": "supp_data/SBMs/cluster_train_rec.csv",
+            "test": "supp_data/SBMs/cluster_test_rec1.csv",
+            "val": "supp_data/SBMs/cluster_val_rec1.csv"
+        },
+    "fixMissingPhi1": false,
+    "extraOrtho": false,
+    "doublePrecision": true,
+    "eigval_hidden_dim": 100,
+    "eigval_num_hidden_layer": 3
   }
 }

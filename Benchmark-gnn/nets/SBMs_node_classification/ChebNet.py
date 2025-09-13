@@ -79,7 +79,7 @@ class ChebNet(nn.Module):
 
         # weighted cross-entropy for unbalanced classes
         criterion = nn.CrossEntropyLoss(weight=weight)
-        loss = criterion(pred, label)
+        loss = criterion(pred.to(torch.float32), label.to(torch.long))
         
         verbose = False
         if verbose:
