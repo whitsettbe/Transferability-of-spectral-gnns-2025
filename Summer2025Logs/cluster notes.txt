@@ -1,8 +1,0 @@
-standard chebnet on cluster [42: 56818226] (72.9/74.3)
-\same but with no residuals [43: 56818351] (73.5/75.7)
-\same but with Eigval layer running cheb02, normalized Laplacian [42: 56855328] (73.4/75.0)
- \same but with no residual [45: 56855656] (73.5/76.4)
- \same but with standard Laplacian, postnormalized [43: 56855476] (70.1/72.5)
-  \same but with no residual [44: 56855516] (70.5/74.1)
-  \same but 16 eigs, METIS scale02_all [42: 58229265] (56.3/58.3)
-   \same but scale02_sub [42: 58311236] (56.3/59.3)
